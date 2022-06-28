@@ -2,6 +2,7 @@ import os
 import shutil
 import sys
 import numpy as np
+import read3D
 
 sys.path.append('flame-fitting')
 from fit_scan import run_fitting
@@ -149,6 +150,7 @@ def run():
         shutil.copyfile(base_name + ".obj", "../flame-fitting/data/scan.obj")
         os.chdir('../flame-fitting')
         run_fitting()
+        vertices, triangles = read3D.read("output/fit_scan_result.obj")
     if nbScan == 0:
         print("Aucun scan fournie.")
     else:
