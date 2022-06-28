@@ -1,1 +1,2 @@
 -r flame-fitting/requirements.txt
+git+https://github.com/MPI-IS/mesh
