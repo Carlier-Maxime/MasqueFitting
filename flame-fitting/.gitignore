@@ -1,4 +1,5 @@
 *.pyc
 /output
 /data
-/sbody/alignment/mesh_distancce
+/sbody/alignment/mesh_distance
+/models
