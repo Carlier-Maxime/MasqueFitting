@@ -1,1 +1,4 @@
 *.pyc
+/output
+/data
+/sbody/alignment/mesh_distancce
