@@ -1,8 +1,4 @@
 import struct
-import numpy as np
-import pyrender
-import trimesh
-import torch
 from datetime import datetime, timedelta
 
 
@@ -38,19 +34,6 @@ def read_stl(file=""):
                 time = datetime.now()
         print("Reading finish.")
     return vertices, triangles
-
-
-def read_and_view(file=""):
-    vertices, triangles = read(file)
-    vertices = torch.tensor(vertices).detach().cpu().numpy().squeeze()
-    triangles = np.array(triangles)
-    print(triangles)
-    scene = pyrender.Scene(ambient_light=[1.0, 1.0, 1.0, 1.0])
-    tri_mesh = trimesh.Trimesh(vertices, faces=triangles)
-    mesh = pyrender.Mesh.from_trimesh(tri_mesh)
-
-    scene.add(mesh)
-    pyrender.Viewer(scene, run_in_thread=True)
 
 
 def read_obj(file=""):

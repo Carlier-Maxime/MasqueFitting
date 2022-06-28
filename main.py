@@ -127,9 +127,12 @@ def read_all_index_opti_tri(vertices, faces, indexs_opti_tri):
 def run():
     if not os.path.exists('flame-fitting/models/generic_model.pkl'):
         print("Télécharger le  flame model ! (plus d'information dans README.md)")
+    markers = np.load("markers.npy")
     files = next(os.walk('input'), (None, None, []))[2]
     nbScan = 0
     nbNoLmk = 0
+    if not os.path.exists('output'):
+        os.mkdir('output')
     os.chdir('input')
     for file in files:
         if not file.endswith('.obj'):
@@ -151,6 +154,13 @@ def run():
         os.chdir('../flame-fitting')
         run_fitting()
         vertices, triangles = read3D.read("output/fit_scan_result.obj")
+        points = read_all_index_opti_tri(vertices, triangles, markers)
+        vertices, triangles = read3D.read('output/scan_scaled.obj')
+        indexs = get_index_for_match_points(vertices, triangles, points)
+        os.chdir('..')
+        vertices, triangles = read3D.read('input/'+base_name+".obj")
+        points = read_all_index_opti_tri(vertices, triangles, indexs)
+        np.save("output/"+base_name+".npy", points)
     if nbScan == 0:
         print("Aucun scan fournie.")
     else:
