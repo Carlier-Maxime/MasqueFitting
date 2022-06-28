@@ -1,0 +1,3 @@
+[submodule "flame-fitting"]
+	path = flame-fitting
+	url = ./flame-fitting
