@@ -143,8 +143,15 @@ def run():
             array = load_picked_points(base_name + ".pp")
             np.save("../flame-fitting/data/scan_lmks.npy", array)
         elif os.path.exists(base_name + '.txt'):
-            print('format txt coming soon')
-            exit(0)
+            array = []
+            with open(base_name+".txt", "r") as f:
+                while True:
+                    line = f.readline()
+                    if line == "":
+                        break
+                    line = line.split(',')
+                    array.append([float(line[0]), float(line[1]), float(line[2])])
+            np.save("../flame-fitting/data/scan_lmks.npy", array)
         else:
             nbNoLmk += 1
             print("Le scan 3D '" + file + " n'as pas de fichier landmark ! (le nom de ce fichier doit-être "
