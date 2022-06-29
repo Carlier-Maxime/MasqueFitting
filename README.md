@@ -1,5 +1,15 @@
 # Masque Fitting
 
+## Description
+
+Masque Fitting vous permet à partir d'un scan 3D et des coordonnées des 51 landmark (voir [Utilisation](#utilisation)), <br>
+d'obtenir les coordonnées des N marqueur correspondant aux points choisie <br>
+sur le visage flame. Par défaut ils vous retournent ces 105 points :
+![Représentation des 105 points](105points.gif) <br>
+(Cette image est un gif d'illustration issue de [VisageGenerator](https://github.com/Carlier-Maxime/Visage-Generator)) <br>
+Bien entendu les coordonnées de ces 105 points sont adapté afin de collé aux masque fournie.
+
+
 ## Installation
 
 ### Pré-requis
@@ -50,4 +60,25 @@ python main.py
 ### récupération des données de sortie
 
 Une fois l'éxécution terminer, vous retrouverer les données de sortie dans le dossier output.
+Pour chaque scan il vous ressort un fichier contenant les coordonnées des marqueurs.
+Le fichier à le même nom que le scan mais avec une extension différente.
 
+### options
+
+Vous pouvez paramètrez le type de format pour le fichier de sortie,
+en le spécifiant lors du lancement du programme. <br>
+Voici un exemple pour le format txt :
+```
+python main.py --output_format=txt
+```
+
+Si vous n'aimez pas spécifier à chaque lancement du programme le format de sortie, <br>
+rendez-vous dans le fichier **config.py** et changer la valeur par défaut.
+
+### formats
+
+Liste des différent format prise en charge :
+- **npy** : fichier numpy pouvant être lu avec python grâce à numpy.
+- **txt** : fichier texte pouvant être lu par Rhinoceros 3D ou dans un éditeur de texte.
+- **pp** : fichier picked points pouvant être lu par MeshLab, <br> 
+  il se base sur une structure HTML vous pouvez donc l'ouvrir avec un éditeur de texte.
