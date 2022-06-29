@@ -20,6 +20,13 @@ Pour installer / éxécuter Masque Fitting vous devez avoir :
 - **g++** (pas tester si nécessaire, mais je suppose qu'il est nécessaire pour compiler [eigen](https://gitlab.com/libeigen/eigen))
 - **7zip** ou tout autre gestionnaire de fichier zip afin de dézipper le fichier model
 
+### Récupération
+
+Cloner simplement le projet à l'aide de git dans le répertoire de votre choix :
+```
+git clone https://github.com/Carlier-Maxime/MasqueFitting
+```
+
 ### Model
 
 Télécharger le model flame (celui de 2020 de préférence) [ici](https://flame.is.tue.mpg.de/)
