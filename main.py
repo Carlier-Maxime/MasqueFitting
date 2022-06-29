@@ -5,6 +5,7 @@ import numpy as np
 import read3D
 
 from config import get_config
+from datetime import datetime
 sys.path.append('flame-fitting')
 from fit_scan import run_fitting
 from fitting.landmarks import load_picked_points
@@ -180,7 +181,20 @@ def run():
                 for p in points:
                     f.write(f'{p[0]},{p[1]},{p[2]}\n')
         elif config.output_format == "pp":
-            print("Format coming soon..")
+            with open("output/"+base_name+".pp", "w") as f:
+                t = datetime.now()
+                f.write(
+                    '<!DOCTYPE PickedPoints>\n' +
+                    '<PickedPoints>\n' +
+                    ' <DocumentData>\n' +
+                    f'  <DateTime time="{t.strftime("%H:%M:%S")}" date="{t.strftime("%Y-%m-%d")}"/>\n' +
+                    f'  <DataFileName name="{base_name}.obj"/>\n' +
+                    ' </DocumentData>\n'
+                )
+                for i in range(len(points)):
+                    p = points[i]
+                    f.write(f' <point y="{p[1]}" z="{p[2]}" active="1" name="{i}" x="{p[0]}"/>\n')
+                f.write('</PickedPoints>\n')
     if nbScan == 0:
         print("Aucun scan fournie.")
     else:
