@@ -82,3 +82,11 @@ Liste des différent format prise en charge :
 - **txt** : fichier texte pouvant être lu par Rhinoceros 3D ou dans un éditeur de texte.
 - **pp** : fichier picked points pouvant être lu par MeshLab, <br> 
   il se base sur une structure HTML vous pouvez donc l'ouvrir avec un éditeur de texte.
+  
+## Ressources
+
+Liste des resources utilisée :
+- [Flame](https://flame.is.tue.mpg.de/)
+- [flame-fitting](https://github.com/Rubikplayer/flame-fitting)
+- [eigen](https://gitlab.com/libeigen/eigen)
+- [Visage-Generator](https://github.com/Carlier-Maxime/Visage-Generator)
