@@ -4,6 +4,7 @@ import sys
 import numpy as np
 import read3D
 
+from config import get_config
 sys.path.append('flame-fitting')
 from fit_scan import run_fitting
 from fitting.landmarks import load_picked_points
@@ -125,8 +126,13 @@ def read_all_index_opti_tri(vertices, faces, indexs_opti_tri):
 
 
 def run():
+    config = get_config()
+    if config.output_format not in ['npy', 'txt', 'pp']:
+        print("Le format du fichier de sortie est inconnue ou non pris en charge.")
+        exit(0)
     if not os.path.exists('flame-fitting/models/generic_model.pkl'):
-        print("Télécharger le  flame model ! (plus d'information dans README.md)")
+        print("Télécharger le flame model ! (plus d'information dans README.md)")
+        exit(0)
     markers = np.load("markers.npy")
     files = next(os.walk('input'), (None, None, []))[2]
     nbScan = 0
@@ -167,7 +173,14 @@ def run():
         os.chdir('..')
         vertices, triangles = read3D.read('input/'+base_name+".obj")
         points = read_all_index_opti_tri(vertices, triangles, indexs)
-        np.save("output/"+base_name+".npy", points)
+        if config.output_format == "npy":
+            np.save("output/"+base_name+".npy", points)
+        elif config.output_format == "txt":
+            with open("output/"+base_name+".txt", "w") as f:
+                for p in points:
+                    f.write(f'{p[0]},{p[1]},{p[2]}\n')
+        elif config.output_format == "pp":
+            print("Format coming soon..")
     if nbScan == 0:
         print("Aucun scan fournie.")
     else:
