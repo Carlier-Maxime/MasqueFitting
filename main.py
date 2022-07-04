@@ -128,7 +128,7 @@ def read_all_index_opti_tri(vertices, faces, indexs_opti_tri):
 
 def run():
     config = get_config()
-    if config.output_format not in ['npy', 'txt', 'pp']:
+    if config.output_format not in ['npy', 'txt', 'pp', 'obj']:
         print("Le format du fichier de sortie est inconnue ou non pris en charge.")
         exit(0)
     if not os.path.exists('flame-fitting/models/generic_model.pkl'):
@@ -195,6 +195,10 @@ def run():
                     p = points[i]
                     f.write(f' <point y="{p[1]}" z="{p[2]}" active="1" name="{i}" x="{p[0]}"/>\n')
                 f.write('</PickedPoints>\n')
+        elif config.output_format == "obj":
+            with open("output/"+base_name+".obj", "w") as f:
+                for p in points:
+                    f.write(f'v {p[0]} {p[1]} {p[2]}\n')
     if nbScan == 0:
         print("Aucun scan fournie.")
     else:
