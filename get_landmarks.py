@@ -18,6 +18,19 @@ class MyApp(ShowBase):
         base.disableMouse()
         base.setBackgroundColor(1, 1, 1)
         base.camera.setPosHpr(0, 0, 300, 0, -84, 0)
+
+        # CollisionTraverser  and a Collision Handler is set up
+        self.picker = CollisionTraverser()
+        self.picker.showCollisions(render)
+        self.pq = CollisionHandlerQueue()
+
+        self.pickerNode = CollisionNode('mouseRay')
+        self.pickerNP = camera.attachNewNode(self.pickerNode)
+        self.pickerNode.setFromCollideMask(GeomNode.getDefaultCollideMask())
+        self.pickerRay = CollisionRay()
+        self.pickerNode.addSolid(self.pickerRay)
+        self.picker.addCollider(self.pickerNP, self.pq)
+
         taskMgr.doMethodLater(0, self.screenshotTask, 'screenshot')
 
     def screenshotTask(self, task):
