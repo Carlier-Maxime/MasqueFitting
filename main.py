@@ -13,6 +13,29 @@ from fitting.landmarks import load_picked_points
 
 def get_index_for_match_points(vertices, faces, points, verbose=False, triangle_optimize=True, pas_tri=1000):
     """
+    allows you to obtain the clues that best correspond to the points provided.
+    it can be vertex indexes or more complex indexes depending on the triangle_optimize value.
+    Parameters:
+        - vertices: the array of all vertex (one vertex is a point represented in an array : [x, y, z])
+        - faces: the array of all face / triangle (one face is an array containing 3 index of vertex : [i, j, k])
+        - points: the array of all point (one point is represented in an array : [x, y, z])
+        - verbose: is a boolean allowing to choose to display or not the progress
+        - triangle_optimize: is a boolean allowing to choose whether or not to use the triangles to optimize the index.
+            Optimization with triangles returns indexes which are arrays containing different information:
+            the format of index : [index_vertex, index_triangle, percentage_vector_1, percentage_vector_2]
+            format detail :
+                - index_vertex: index of vertex
+                - index_triangle: index of triangle
+                - percentage_vector_1: percentage of vector one
+                - percentage_vector_2: percentage of vector two
+            vector 1 and 2 are calculated using as origin the vertex of index index_vertex and as
+            destination one of the other points of the triangle.
+            the destination point is obtained with respect to the order of the vertices in the triangle,
+            by not tacking the original vertices. the list of possibility :
+            - [origin, dest1, dest2]
+            - [dest1, origin, dest2]
+            - [dest1, dest2, origin]
+        - pas_tri : is an integer corresponding to the progress step for the vectors. (1000 == 0.1% of vector per step)
     return: list index of index matching points.
     """
     assert len(vertices) > 0
@@ -69,7 +92,8 @@ def get_index_for_match_points(vertices, faces, points, verbose=False, triangle_
             list_index.append([index, ind_tri, percentage[0], percentage[1]])
         else:
             list_index.append(index)
-    print(no_tri, "/", len(points), " points no need triangles !")
+    if verbose:
+        print(no_tri, "/", len(points), " points no need triangles !")
     return list_index
 
 
