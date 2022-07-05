@@ -2,7 +2,8 @@ import sys
 import os
 
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import DirectionalLight, Texture, NodePath, Filename, ConfigVariableString
+from panda3d.core import DirectionalLight, Texture, NodePath, Filename, ConfigVariableString, CollisionTraverser, \
+    CollisionHandlerQueue, CollisionNode, CollisionRay, GeomNode
 
 
 class MyApp(ShowBase):
@@ -40,6 +41,22 @@ class MyApp(ShowBase):
         base.screenshot("tmp/screen.png", False)
         self.finalizeExit()
         return task.done
+
+    def pixel_to_3d_point(self, x, y):
+        # set the position of the ray based on the mouse position
+        halfX = base.win.getXSize()/2
+        halfY = base.win.getYSize()/2
+        x = (x-halfX)/halfX
+        y = (y - halfY) / halfY
+        self.pickerRay.setFromLens(base.camNode, x, y)
+        self.picker.traverse(render)
+        # if we have hit something sort the hits so that the closest is first and highlight the node
+        if self.pq.getNumEntries() > 0:
+            self.pq.sortEntries()
+            entry = self.pq.getEntry(0)
+            if entry.hasSurfacePoint():
+                return entry.getSurfacePoint(entry.into_node_path)
+        return None
 
 
 if __name__ == '__main__':
