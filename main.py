@@ -15,12 +15,19 @@ def get_index_for_match_points(vertices, faces, points, verbose=False, triangle_
     """
     allows you to obtain the clues that best correspond to the points provided.
     it can be vertex indexes or more complex indexes depending on the triangle_optimize value.
-    Parameters:
-        - vertices: the array of all vertex (one vertex is a point represented in an array : [x, y, z])
-        - faces: the array of all face / triangle (one face is an array containing 3 index of vertex : [i, j, k])
-        - points: the array of all point (one point is represented in an array : [x, y, z])
-        - verbose: is a boolean allowing to choose to display or not the progress
-        - triangle_optimize: is a boolean allowing to choose whether or not to use the triangles to optimize the index.
+
+    Parameters
+    ----------
+    vertices : array
+        the array of all vertex (one vertex is a point represented in an array : [x, y, z])
+    faces : array
+        the array of all face / triangle (one face is an array containing 3 index of vertex : [i, j, k])
+    points : array
+        the array of all point (one point is represented in an array : [x, y, z])
+    verbose : bool
+        is a boolean allowing to choose to display or not the progress
+    triangle_optimize : bool
+            is a boolean allowing to choose whether or not to use the triangles to optimize the index.
             Optimization with triangles returns indexes which are arrays containing different information:
             the format of index : [index_vertex, index_triangle, percentage_vector_1, percentage_vector_2]
             format detail :
@@ -35,8 +42,13 @@ def get_index_for_match_points(vertices, faces, points, verbose=False, triangle_
             - [origin, dest1, dest2]
             - [dest1, origin, dest2]
             - [dest1, dest2, origin]
-        - pas_tri : is an integer corresponding to the progress step for the vectors. (1000 == 0.1% of vector per step)
-    return: list index of index matching points.
+    pas_tri : int
+        is an integer corresponding to the progress step for the vectors. (1000 == 0.1% of vector per step)
+
+    Returns
+    -------
+    list
+        a list index of index matching points.
     """
     assert len(vertices) > 0
 
