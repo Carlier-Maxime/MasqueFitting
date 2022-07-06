@@ -1,6 +1,8 @@
 import sys
 import os
 
+import cv2
+
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import DirectionalLight, Texture, NodePath, Filename, ConfigVariableString, CollisionTraverser, \
     CollisionHandlerQueue, CollisionNode, CollisionRay, GeomNode
@@ -39,14 +41,15 @@ class MyApp(ShowBase):
         if not os.path.isdir("tmp"):
             os.mkdir("tmp")
         base.screenshot("tmp/screen.png", False)
+        self.read2d_landmark()
         self.finalizeExit()
         return task.done
 
     def pixel_to_3d_point(self, x, y):
         # set the position of the ray based on the mouse position
-        halfX = base.win.getXSize()/2
-        halfY = base.win.getYSize()/2
-        x = (x-halfX)/halfX
+        halfX = base.win.getXSize() / 2
+        halfY = base.win.getYSize() / 2
+        x = (x - halfX) / halfX
         y = (y - halfY) / halfY
         self.pickerRay.setFromLens(base.camNode, x, y)
         self.picker.traverse(render)
@@ -57,6 +60,18 @@ class MyApp(ShowBase):
             if entry.hasSurfacePoint():
                 return entry.getSurfacePoint(entry.into_node_path)
         return None
+
+    def read2d_landmark(self):
+        img = cv2.imread("tmp/result.png")
+        rows, cols = img.shape[:2]
+        pts = []
+        for i in range(rows):
+            for j in range(cols):
+                p = img[i, j]
+                if p[2] == 255 and p[0] == 0 and p[1] == 0:  # red beacause opencv is BGR not RGB !
+                    pts.append(self.pixel_to_3d_point(i, j))
+        return pts
+
 
 
 if __name__ == '__main__':
