@@ -109,10 +109,26 @@ def get_index_for_match_points(vertices, faces, points, verbose=False, triangle_
     return list_index
 
 
-def get_index_triangles_match_vertex(triangles, index_point):
+def get_index_triangles_match_vertex(triangles, index_vertex):
+    """
+    provides a list containing the indices of all triangles that contain the provided vertex
+
+    Parameters
+    ----------
+    triangles : array
+        the array of all triangle / face (one triangle is an array containing 3 index of vertex : [i, j, k])
+    index_vertex : int
+        the index of the vertex
+
+    Returns
+    -------
+    list
+        a list containing the indices of all triangles that contain the provided vertex
+
+    """
     faces = []
     for i in range(len(triangles)):
-        if index_point in triangles[i]:
+        if index_vertex in triangles[i]:
             faces.append(i)
     return faces
 
@@ -146,6 +162,26 @@ def get_vector_for_point(triangles, p):
 
 
 def read_index_opti_tri(vertices, faces, index_opti_tri):
+    """
+    allows to retrieve the index point of the type :
+    [index_vertex, index_triangle, percentage_vector_1, percentage_vector_2]
+
+    Parameters
+    ----------
+    vertices : array
+        the array of all vertex (one vertex is a point represented in an array : [x, y, z])
+    faces : array
+        the array of all face / triangle (one face is an array containing 3 index of vertex : [i, j, k])
+    index_opti_tri : array
+        a index of type : [index_vertex, index_triangle, percentage_vector_1, percentage_vector_2]
+
+
+    Returns
+    -------
+    point
+        the point corresponding to the given index, point represented in an array : [x, y, z]
+
+    """
     p = vertices[int(index_opti_tri[0])]
     if index_opti_tri[1] != -1:
         tri = np.array(vertices)[faces[int(index_opti_tri[1])]]
@@ -155,9 +191,28 @@ def read_index_opti_tri(vertices, faces, index_opti_tri):
     return p
 
 
-def read_all_index_opti_tri(vertices, faces, indexs_opti_tri):
+def read_all_index_opti_tri(vertices, faces, indexes_opti_tri):
+    """
+    allows you to obtain all the points corresponding to the indexes opti tri provided
+
+    Parameters
+    ----------
+    vertices : array
+        the array of all vertex (one vertex is a point represented in an array : [x, y, z])
+    faces : array
+        the array of all face / triangle (one face is an array containing 3 index of vertex : [i, j, k])
+    indexes_opti_tri : array
+        an array of all the opti tri indexes whose points you want.
+        format of one index : [index_vertex, index_triangle, percentage_vector_1, percentage_vector_2]
+
+    Returns
+    -------
+    array
+        the array of all point corresponding to the indexes provided. point represented in an array : [x, y, z]
+
+    """
     points = []
-    for indexOptiTri in indexs_opti_tri:
+    for indexOptiTri in indexes_opti_tri:
         points.append(read_index_opti_tri(vertices, faces, indexOptiTri))
     return points
 
