@@ -1,7 +1,9 @@
 import sys
 import os
+from datetime import datetime
 
 import cv2
+import numpy as np
 
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import DirectionalLight, Texture, NodePath, Filename, ConfigVariableString, CollisionTraverser, \
@@ -41,7 +43,7 @@ class MyApp(ShowBase):
         if not os.path.isdir("tmp"):
             os.mkdir("tmp")
         base.screenshot("tmp/screen.png", False)
-        self.read2d_landmark()
+        lmk = self.read2d_landmark()
         self.finalizeExit()
         return task.done
 
@@ -50,7 +52,7 @@ class MyApp(ShowBase):
         halfX = base.win.getXSize() / 2
         halfY = base.win.getYSize() / 2
         x = (x - halfX) / halfX
-        y = (y - halfY) / halfY
+        y = ((y - halfY) / halfY)*-1
         self.pickerRay.setFromLens(base.camNode, x, y)
         self.picker.traverse(render)
         # if we have hit something sort the hits so that the closest is first and highlight the node
@@ -65,13 +67,18 @@ class MyApp(ShowBase):
         img = cv2.imread("tmp/result.png")
         rows, cols = img.shape[:2]
         pts = []
+        indcount = []
         for i in range(rows):
             for j in range(cols):
                 p = img[i, j]
                 if p[2] == 255 and p[0] == 0 and p[1] == 0:  # red beacause opencv is BGR not RGB !
-                    pts.append(self.pixel_to_3d_point(i, j))
+                    if [i, j] not in indcount:
+                        pts.append(self.pixel_to_3d_point(j, i+1))
+                        for ind in [[i, j], [i+1, j-1], [i+1, j+1], [i+2, j]]:
+                            indcount.append(ind)
+                        if len(pts) >= 61:
+                            return pts
         return pts
-
 
 
 if __name__ == '__main__':
