@@ -69,14 +69,16 @@ class MyApp(ShowBase):
         pts = []
         indcount = []
         for i in range(rows):
-            for j in range(cols):
+            for j in range(200, cols-250):
                 p = img[i, j]
                 if p[2] == 255 and p[0] == 0 and p[1] == 0:  # red beacause opencv is BGR not RGB !
                     if [i, j] not in indcount:
-                        pts.append(self.pixel_to_3d_point(j, i+1))
+                        p3d = self.pixel_to_3d_point(j, i + 1)
+                        if p3d is not None:
+                            pts.append(p3d)
                         for ind in [[i, j], [i+1, j-1], [i+1, j+1], [i+2, j]]:
                             indcount.append(ind)
-                        if len(pts) >= 61:
+                        if len(pts) >= 51:
                             return pts
         return pts
 
