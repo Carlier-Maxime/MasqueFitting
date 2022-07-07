@@ -9,6 +9,8 @@ from direct.showbase.ShowBase import ShowBase
 from panda3d.core import DirectionalLight, Texture, NodePath, Filename, ConfigVariableString, CollisionTraverser, \
     CollisionHandlerQueue, CollisionNode, CollisionRay, GeomNode
 
+import util
+
 
 class MyApp(ShowBase):
 
@@ -44,6 +46,7 @@ class MyApp(ShowBase):
             os.mkdir("tmp")
         base.screenshot("tmp/screen.png", False)
         lmk = self.read2d_landmark()
+        util.save_points(lmk, "result", "pp")
         self.finalizeExit()
         return task.done
 

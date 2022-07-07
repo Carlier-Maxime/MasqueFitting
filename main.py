@@ -3,6 +3,7 @@ import shutil
 import sys
 import numpy as np
 import read3D
+import util
 
 from config import get_config
 from datetime import datetime
@@ -265,31 +266,7 @@ def run():
         os.chdir('..')
         vertices, triangles = read3D.read('input/'+base_name+".obj")
         points = read_all_index_opti_tri(vertices, triangles, indexs)
-        if config.output_format == "npy":
-            np.save("output/"+base_name+".npy", points)
-        elif config.output_format == "txt":
-            with open("output/"+base_name+".txt", "w") as f:
-                for p in points:
-                    f.write(f'{p[0]},{p[1]},{p[2]}\n')
-        elif config.output_format == "pp":
-            with open("output/"+base_name+".pp", "w") as f:
-                t = datetime.now()
-                f.write(
-                    '<!DOCTYPE PickedPoints>\n' +
-                    '<PickedPoints>\n' +
-                    ' <DocumentData>\n' +
-                    f'  <DateTime time="{t.strftime("%H:%M:%S")}" date="{t.strftime("%Y-%m-%d")}"/>\n' +
-                    f'  <DataFileName name="{base_name}.obj"/>\n' +
-                    ' </DocumentData>\n'
-                )
-                for i in range(len(points)):
-                    p = points[i]
-                    f.write(f' <point y="{p[1]}" z="{p[2]}" active="1" name="{i}" x="{p[0]}"/>\n')
-                f.write('</PickedPoints>\n')
-        elif config.output_format == "obj":
-            with open("output/"+base_name+".obj", "w") as f:
-                for p in points:
-                    f.write(f'v {p[0]} {p[1]} {p[2]}\n')
+        util.save_points(points, base_name, config.output_format)
     if nbScan == 0:
         print("Aucun scan fournie.")
     else:
