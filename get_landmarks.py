@@ -76,6 +76,13 @@ class MyApp(ShowBase):
                         p3d = self.pixel_to_3d_point(j, i + 1)
                         if p3d is not None:
                             pts.append(p3d)
+                        else:
+                            y = i
+                            while p3d is None and y < rows:
+                                p3d = self.pixel_to_3d_point(j, y + 1)
+                                y += 1
+                            if p3d is not None:
+                                pts.append(p3d)
                         for ind in [[i, j], [i+1, j-1], [i+1, j+1], [i+2, j]]:
                             indcount.append(ind)
                         if len(pts) >= 51:
