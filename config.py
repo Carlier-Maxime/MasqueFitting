@@ -16,6 +16,13 @@ parser.add_argument(
     help="Activer ou désactiver la génération automatique de landmark"
 )
 
+parser.add_argument(
+    '--radius',
+    type=float,
+    default=2.0,
+    help="rayon des sphere pour représenter les points dans le format obj"
+)
+
 
 def get_config():
     config = parser.parse_args()

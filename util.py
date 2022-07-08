@@ -4,7 +4,7 @@ import numpy as np
 import trimesh
 
 
-def save_points(points, file_base_name, format="npy"):
+def save_points(points, file_base_name, format="npy", radius=2):
     if format == "npy":
         np.save(file_base_name + ".npy", points)
     elif format == "txt":
@@ -27,7 +27,7 @@ def save_points(points, file_base_name, format="npy"):
                 f.write(f' <point y="{p[1]}" z="{p[2]}" active="1" name="{i}" x="{p[0]}"/>\n')
             f.write('</PickedPoints>\n')
     elif format == "obj":
-        sm = trimesh.creation.uv_sphere(radius=2)
+        sm = trimesh.creation.uv_sphere(radius=radius)
         tfs = np.tile(np.eye(4), (1, 1))
         nbVertice = 0
         with open(file_base_name + ".obj", "w") as f:

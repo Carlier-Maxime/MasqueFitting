@@ -269,7 +269,7 @@ def run():
         os.chdir('..')
         vertices, triangles = read3D.read('input/'+base_name+".obj")
         points = read_all_index_opti_tri(vertices, triangles, indexs)
-        util.save_points(points, "output/"+base_name, config.output_format)
+        util.save_points(points, "output/"+base_name, config.output_format, config.radius)
     if nbScan == 0:
         print("Aucun scan fournie.")
     else:
