@@ -1,12 +1,10 @@
-import sys
 import os
-from datetime import datetime
+import sys
 
 import cv2
 import numpy as np
-
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import DirectionalLight, Texture, NodePath, Filename, ConfigVariableString, CollisionTraverser, \
+from panda3d.core import DirectionalLight, ConfigVariableString, CollisionTraverser, \
     CollisionHandlerQueue, CollisionNode, CollisionRay, GeomNode
 
 import util
@@ -16,6 +14,7 @@ class MyApp(ShowBase):
 
     def __init__(self, file_path):
         ShowBase.__init__(self)
+        self.file_path = file_path
         model = self.loader.load_model(file_path)
         model.reparentTo(render)
         dlight = DirectionalLight('my dlight')
@@ -45,8 +44,8 @@ class MyApp(ShowBase):
         if not os.path.isdir("tmp"):
             os.mkdir("tmp")
         base.screenshot("tmp/screen.png", False)
-        lmk = self.read2d_landmark()
-        util.save_points(lmk, "result", "pp")
+        lmk = self.get_landmark_2d()
+        util.save_points(lmk, self.file_path.split('.obj')[0], "pp")
         self.finalizeExit()
         return task.done
 
@@ -91,6 +90,35 @@ class MyApp(ShowBase):
                         if len(pts) >= 51:
                             return pts
         return pts
+
+    def get_landmark_2d(self):
+        os.chdir("lmk-detection")
+        os.system("python lmk_detection.py ../tmp/screen.png")
+        os.chdir("..")
+        preds = np.load("lmk-detection/lmk.npy")
+        pts = []
+        for pred in preds:
+            p = self.pixel_to_3d_point(pred[0], pred[1])
+            if p is not None:
+                pts.append(p)
+            else:
+                x, y = pred
+                pasX, pasY = 0, 0
+                if 200 <= y <= 400 and 300 <= x <= 500:
+                    pasY = 1
+                elif x < 400:
+                    pasX = 1
+                else:
+                    pasX = -1
+                while p is None and 0 <= x <= 800 and 0 <= y <= 600:
+                    p = self.pixel_to_3d_point(x, y)
+                    x += pasX
+                    y += pasY
+                if p is not None:
+                    pts.append(p)
+                else:
+                    print(f'None 3D point for pixel {x}, {y} !')
+        return pts[17:]
 
 
 if __name__ == '__main__':

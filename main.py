@@ -6,9 +6,8 @@ import read3D
 import util
 
 from config import get_config
-from datetime import datetime
+
 sys.path.append('flame-fitting')
-from fit_scan import run_fitting
 from fitting.landmarks import load_picked_points
 
 
@@ -238,6 +237,10 @@ def run():
             continue
         nbScan += 1
         base_name = file.split('.obj')[0]
+        if config.auto_lmk:
+            os.chdir("..")
+            os.system("python get_landmarks.py input/scan.obj")
+            os.chdir('input')
         if os.path.exists(base_name + '.pp'):
             array = load_picked_points(base_name + ".pp")
             np.save("../flame-fitting/data/scan_lmks.npy", array)
@@ -258,7 +261,7 @@ def run():
             continue
         shutil.copyfile(base_name + ".obj", "../flame-fitting/data/scan.obj")
         os.chdir('../flame-fitting')
-        run_fitting()
+        os.system('python fit_scan.py')
         vertices, triangles = read3D.read("output/fit_scan_result.obj")
         points = read_all_index_opti_tri(vertices, triangles, markers)
         vertices, triangles = read3D.read('output/scan_scaled.obj')
@@ -266,7 +269,7 @@ def run():
         os.chdir('..')
         vertices, triangles = read3D.read('input/'+base_name+".obj")
         points = read_all_index_opti_tri(vertices, triangles, indexs)
-        util.save_points(points, base_name, config.output_format)
+        util.save_points(points, "output/"+base_name, config.output_format)
     if nbScan == 0:
         print("Aucun scan fournie.")
     else:
