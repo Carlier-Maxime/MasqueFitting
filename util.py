@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import numpy as np
+import trimesh
 
 
 def save_points(points, file_base_name, format="npy"):
@@ -26,6 +27,18 @@ def save_points(points, file_base_name, format="npy"):
                 f.write(f' <point y="{p[1]}" z="{p[2]}" active="1" name="{i}" x="{p[0]}"/>\n')
             f.write('</PickedPoints>\n')
     elif format == "obj":
+        sm = trimesh.creation.uv_sphere(radius=2)
+        tfs = np.tile(np.eye(4), (1, 1))
+        nbVertice = 0
         with open(file_base_name + ".obj", "w") as f:
             for p in points:
-                f.write(f'v {p[0]} {p[1]} {p[2]}\n')
+                tfs[:3, 3] = p
+                sphere = sm.copy()
+                sphere.apply_transform(tfs)
+                vertices = sphere.vertices
+                faces = sphere.faces
+                for v in vertices:
+                    f.write(f'v {v[0]} {v[1]} {v[2]}\n')
+                for face in faces:
+                    f.write(f'f {face[0]+nbVertice} {face[1]+nbVertice} {face[2]+nbVertice}\n')
+                nbVertice+=len(vertices)
