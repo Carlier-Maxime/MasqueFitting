@@ -41,4 +41,4 @@ def save_points(points, file_base_name, format="npy"):
                     f.write(f'v {v[0]} {v[1]} {v[2]}\n')
                 for face in faces:
                     f.write(f'f {face[0]+nbVertice} {face[1]+nbVertice} {face[2]+nbVertice}\n')
-                nbVertice+=len(vertices)
+                nbVertice += len(vertices)

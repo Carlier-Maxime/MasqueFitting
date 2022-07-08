@@ -89,6 +89,7 @@ Liste des différent format prise en charge :
 - **txt** : fichier texte pouvant être lu par Rhinoceros 3D ou dans un éditeur de texte.
 - **pp** : fichier picked points pouvant être lu par MeshLab, <br> 
   il se base sur une structure HTML vous pouvez donc l'ouvrir avec un éditeur de texte.
+- **obj** : fichier objet 3D, les points sont représenter par des sphére
   
 ## Ressources
 
