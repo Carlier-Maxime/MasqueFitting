@@ -221,7 +221,7 @@ def read_all_index_opti_tri(vertices, faces, indexes_opti_tri):
 
 def run():
     config = get_config()
-    if config.output_format not in ['npy', 'txt', 'pp', 'obj']:
+    if config.output_format not in ['npy', 'txt', 'pp', 'obj', 'stl']:
         print("Le format du fichier de sortie est inconnue ou non pris en charge.")
         exit(0)
     if not os.path.exists('flame-fitting/models/generic_model.pkl'):
