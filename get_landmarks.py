@@ -44,10 +44,8 @@ class MyApp(ShowBase):
         if not os.path.isdir("tmp"):
             os.mkdir("tmp")
         base.screenshot("tmp/screen.png", False)
-        """
         lmk = self.get_landmark_2d()
         util.save_points(lmk, self.file_path.split('.obj')[0], "pp")
-        """
         self.finalizeExit()
         return task.done
 

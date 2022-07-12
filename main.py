@@ -3,6 +3,7 @@ import shutil
 import sys
 import numpy as np
 import madcad
+import trimesh
 
 import read3D
 import util
@@ -151,7 +152,7 @@ def get_vector_for_point(triangles, p):
             else:
                 ind.append(i)
         if len(ind) > 2:
-            print("Error in getVectoForPoint in util.py ! (verify your point is vertex of triangles)")
+            print("Error in getVectoForPoint in main.py ! (verify your point is vertex of triangles)")
             exit(1)
         t[1] = triangle[ind[0]]
         t[2] = triangle[ind[1]]
@@ -241,6 +242,13 @@ def run():
         if not file.endswith('.obj'):
             continue
         nbScan += 1
+
+        # generate normal
+        mesh = trimesh.load_mesh(file)
+        normals = mesh.vertex_normals
+        with open(file, "w") as f:
+            f.write(trimesh.exchange.obj.export_obj(mesh, True))
+
         base_name = file.split('.obj')[0]
         if config.auto_lmk:
             os.chdir("..")
