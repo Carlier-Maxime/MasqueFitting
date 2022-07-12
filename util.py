@@ -72,3 +72,50 @@ def simply_obj(file):
                 content += f'f {line[1].split("/")[0]} {line[2].split("/")[0]} {line[3].split("/")[0]}\n'
     with open(file, "w") as f:
         f.write(content)
+
+
+def get_normal(vertices, triangles):
+    """
+    calculate normal direction in each vertex
+    Args:
+        vertices: [nver, 3]
+        triangles: [ntri, 3]
+    Returns:
+        normal: [nver, 3]
+
+    Source:
+        https://github.com/YadiraF/face3d
+    """
+    pt0 = vertices[triangles[:, 0], :]  # [ntri, 3]
+    pt1 = vertices[triangles[:, 1], :]  # [ntri, 3]
+    pt2 = vertices[triangles[:, 2], :]  # [ntri, 3]
+    tri_normal = np.cross(pt0 - pt1, pt0 - pt2)  # [ntri, 3]. normal of each triangle
+
+    normal = np.zeros_like(vertices, dtype=np.float32).copy()  # [nver, 3]
+    # for i in range(triangles.shape[0]):
+    #     normal[triangles[i, 0], :] = normal[triangles[i, 0], :] + tri_normal[i, :]
+    #     normal[triangles[i, 1], :] = normal[triangles[i, 1], :] + tri_normal[i, :]
+    #     normal[triangles[i, 2], :] = normal[triangles[i, 2], :] + tri_normal[i, :]
+    get_normal_core(normal, tri_normal.astype(np.float32).copy(), triangles.copy(), triangles.shape[0])
+
+    # normalize to unit length
+    mag = np.sum(normal ** 2, 1)  # [nver]
+    zero_ind = (mag == 0)
+    mag[zero_ind] = 1
+    normal[zero_ind, 0] = np.ones((np.sum(zero_ind)))
+
+    normal = normal / np.sqrt(mag[:, np.newaxis])
+
+    return normal
+
+
+def get_normal_core(normal, tri_normal, triangles, ntri):
+    for i in range(ntri):
+        tri_p0_ind = triangles[i][0]
+        tri_p1_ind = triangles[i][1]
+        tri_p2_ind = triangles[i][2]
+
+        for j in range(3):
+            normal[tri_p0_ind][j] = normal[tri_p0_ind][j] + tri_normal[i][j]
+            normal[tri_p1_ind][j] = normal[tri_p1_ind][j] + tri_normal[i][j]
+            normal[tri_p2_ind][j] = normal[tri_p2_ind][j] + tri_normal[i][j]
