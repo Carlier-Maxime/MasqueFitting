@@ -233,15 +233,18 @@ def run():
     nbNoLmk = 0
     if not os.path.exists('output'):
         os.mkdir('output')
-    os.chdir('input')
+    in_input = False
     for file in files:
+        if not in_input:
+            os.chdir('input')
+            in_input = True
         if not file.endswith('.obj'):
             continue
         nbScan += 1
         base_name = file.split('.obj')[0]
         if config.auto_lmk:
             os.chdir("..")
-            os.system("python get_landmarks.py input/scan.obj")
+            os.system("python get_landmarks.py " + "input/"+file)
             os.chdir('input')
         if os.path.exists(base_name + '.pp'):
             array = load_picked_points(base_name + ".pp")
@@ -263,6 +266,7 @@ def run():
             continue
         shutil.copyfile(base_name + ".obj", "../flame-fitting/data/scan.obj")
         os.chdir('../flame-fitting')
+        in_input = False
         os.system('python fit_scan.py')
         vertices, triangles = read3D.read("output/fit_scan_result.obj")
         points = read_all_index_opti_tri(vertices, triangles, markers)

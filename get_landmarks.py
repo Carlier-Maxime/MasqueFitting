@@ -19,11 +19,11 @@ class MyApp(ShowBase):
         model.reparentTo(render)
         dlight = DirectionalLight('my dlight')
         dlnp = render.attachNewNode(dlight)
-        dlnp.setPosHpr(0, 0, 300, 0, -84, 0)
-        render.setLight(dlnp)
+        dlnp.setPosHpr(0, 0, 500, 0, -84, 0)
+        model.setLight(dlnp)
         base.disableMouse()
         base.setBackgroundColor(1, 1, 1)
-        base.camera.setPosHpr(0, 0, 300, 0, -84, 0)
+        base.camera.setPosHpr(0, 0, 450, 0, -84, 0)
 
         # CollisionTraverser  and a Collision Handler is set up
         self.picker = CollisionTraverser()
@@ -44,9 +44,11 @@ class MyApp(ShowBase):
         if not os.path.isdir("tmp"):
             os.mkdir("tmp")
         base.screenshot("tmp/screen.png", False)
+        """
         lmk = self.get_landmark_2d()
         util.save_points(lmk, self.file_path.split('.obj')[0], "pp")
         self.finalizeExit()
+        """
         return task.done
 
     def pixel_to_3d_point(self, x, y):

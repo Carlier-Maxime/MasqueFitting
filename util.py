@@ -44,3 +44,31 @@ def save_points(points, file_base_name, format="npy", radius=2, mask=None):
                     f.write(f'v {p[0]} {p[1]} {p[2]}\n')
                 for face in spheres.faces:
                     f.write(f'f {face[0]} {face[1]} {face[2]}\n')
+
+def simply_obj(file):
+    """
+    Supress Color, normal, comment in obj file
+
+    Parameters
+    ----------
+    file
+
+    Returns
+    -------
+
+    """
+    content = ""
+    with open(file, "r") as f:
+        line = "start"
+        while line != "":
+            line = f.readline()
+            if line.startswith("v "):
+                line = line.split(" ")
+                content += f'v {line[1]} {line[2]} {line[3]}'
+                if len(line) > 4:
+                    content += '\n'
+            elif line.startswith("f "):
+                line = line.split(" ")
+                content += f'f {line[1].split("/")[0]} {line[2].split("/")[0]} {line[3].split("/")[0]}\n'
+    with open(file, "w") as f:
+        f.write(content)
