@@ -47,8 +47,8 @@ class MyApp(ShowBase):
         """
         lmk = self.get_landmark_2d()
         util.save_points(lmk, self.file_path.split('.obj')[0], "pp")
-        self.finalizeExit()
         """
+        self.finalizeExit()
         return task.done
 
     def pixel_to_3d_point(self, x, y):
