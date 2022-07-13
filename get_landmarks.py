@@ -17,8 +17,8 @@ class MyApp(ShowBase):
         self.file_path = file_path
         model = self.loader.load_model(file_path)
         model.reparentTo(render)
-        dlight = DirectionalLight('my dlight')
-        dlnp = render.attachNewNode(dlight)
+        self.dlight = DirectionalLight('my dlight')
+        dlnp = render.attachNewNode(self.dlight)
         dlnp.setPosHpr(0, 0, 500, 0, -84, 0)
         model.setLight(dlnp)
         base.disableMouse()
@@ -45,6 +45,10 @@ class MyApp(ShowBase):
             os.mkdir("tmp")
         base.screenshot("tmp/screen.png", False)
         lmk = self.get_landmark_2d()
+        if lmk is None:
+            self.dlight.color = (0.2, 0.2, 0.2, 1.0)
+            taskMgr.doMethodLater(0, self.screenshotTask, 'screenshot')
+            return task.done
         util.save_points(lmk, self.file_path.split('.obj')[0], "pp")
         self.finalizeExit()
         return task.done
@@ -96,6 +100,8 @@ class MyApp(ShowBase):
         os.system("python lmk_detection.py ../tmp/screen.png")
         os.chdir("..")
         preds = np.load("lmk-detection/lmk.npy")
+        if len(preds) == 0:
+            return None
         pts = []
         for pred in preds:
             p = self.pixel_to_3d_point(pred[0], pred[1])

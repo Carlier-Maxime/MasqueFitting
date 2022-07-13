@@ -239,17 +239,18 @@ def run():
         if not in_input:
             os.chdir('input')
             in_input = True
-        if not file.endswith('.obj'):
+        if not file.endswith('.obj') and not file.endswith(".stl"):
             continue
         nbScan += 1
 
-        # generate normal
-        mesh = trimesh.load_mesh(file)
-        normals = mesh.vertex_normals
-        with open(file, "w") as f:
-            f.write(trimesh.exchange.obj.export_obj(mesh, True))
+        # generate normal for obj and remove color and texture
+        if file.endswith(".obj"):
+            mesh = trimesh.load_mesh(file)
+            normals = mesh.vertex_normals
+            with open(file, "w") as f:
+                f.write(trimesh.exchange.obj.export_obj(mesh, True, False, False))
 
-        base_name = file.split('.obj')[0]
+        base_name = file.split('.obj')[0].split(".stl")[0]
         if config.auto_lmk:
             os.chdir("..")
             os.system("python get_landmarks.py " + "input/"+file)
@@ -281,9 +282,10 @@ def run():
         vertices, triangles = read3D.read('output/scan_scaled.obj')
         indexs = get_index_for_match_points(vertices, triangles, points)
         os.chdir('..')
-        vertices, triangles = read3D.read('input/'+base_name+".obj")
+        mesh = madcad.io.read("input/" + base_name + ".obj")
+        vertices, triangles = mesh.points, mesh.faces
         points = read_all_index_opti_tri(vertices, triangles, indexs)
-        util.save_points(points, "output/"+base_name, config.output_format, config.radius, madcad.io.read("input/" + base_name + ".obj"))
+        util.save_points(points, "output/"+base_name, config.output_format, config.radius, mesh)
     if nbScan == 0:
         print("Aucun scan fournie.")
     else:
