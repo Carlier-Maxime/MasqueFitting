@@ -306,7 +306,7 @@ def run():
         if nbScan != nbNoLmk:
             print(nbScan - nbNoLmk, "scan sur", nbScan, "ont été traité avec succès !")
         if nbNoLmk > 0:
-            log.warning(nbNoLmk, "scan sur", nbScan, "n'ont pas de fichier landmark ! Ils ont donc pas pu être traité.")
+            log.warning(f"{nbNoLmk} scan sur {nbScan} n'ont pas de fichier landmark ! Ils ont donc pas pu être traité.")
 
 
 if __name__ == '__main__':
