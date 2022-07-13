@@ -285,7 +285,7 @@ def run():
         os.chdir('../flame-fitting')
         in_input = False
         print("lancement de flame-fitting")
-        os.system('python fit_scan.py')
+        os.system('python fit_scan.py > tmp/log_flame-fitting.txt')
         print("flame-fitting terminée.")
         print("récupération des markers 3D sur le model FLAME fitter")
         vertices, triangles = read3D.read("output/fit_scan_result.obj")
