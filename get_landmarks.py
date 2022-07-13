@@ -6,7 +6,7 @@ import logging as log
 import numpy as np
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import DirectionalLight, ConfigVariableString, CollisionTraverser, \
-    CollisionHandlerQueue, CollisionNode, CollisionRay, GeomNode
+    CollisionHandlerQueue, CollisionNode, CollisionRay, GeomNode, loadPrcFile
 
 import util
 
@@ -48,7 +48,7 @@ class MyApp(ShowBase):
             os.mkdir("tmp")
         base.screenshot("tmp/screen.png", False)
 
-        print("Détection des landmark 2d")
+        print("Détection des landmark 2d..")
         lmk = self.get_landmark_2d()
         if lmk is None:
             if self.dlight.color != (0.2, 0.2, 0.2, 1.0):
@@ -141,8 +141,7 @@ class MyApp(ShowBase):
 
 if __name__ == '__main__':
     print("Configuration de panda3d")
+    loadPrcFile("etc/Config.prc")
     args = sys.argv[1:]
-    ConfigVariableString("window-type").setValue("offscreen")
-    ConfigVariableString("model-cache-dir").setValue("")
     app = MyApp(str(args[0]))
     app.run()
