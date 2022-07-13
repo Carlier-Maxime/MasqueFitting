@@ -124,5 +124,6 @@ class MyApp(ShowBase):
 if __name__ == '__main__':
     args = sys.argv[1:]
     ConfigVariableString("window-type").setValue("offscreen")
+    ConfigVariableString("model-cache-dir").setValue("")
     app = MyApp(str(args[0]))
     app.run()
