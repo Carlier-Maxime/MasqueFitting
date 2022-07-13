@@ -2,7 +2,6 @@ from datetime import datetime
 from distutils.spawn import find_executable
 
 import numpy as np
-import madcad
 import trimesh
 
 
@@ -29,21 +28,30 @@ def save_points(points, file_base_name, format="npy", radius=2, mask=None):
                 f.write(f' <point y="{p[1]}" z="{p[2]}" active="1" name="{i}" x="{p[0]}"/>\n')
             f.write('</PickedPoints>\n')
     elif format in ["obj", "stl"]:
-        spheres = madcad.uvsphere(points[0], radius)
+        spheres = trimesh.creation.uv_sphere(radius)
         for i in range(1, len(points)):
-            sm = madcad.uvsphere(points[i], radius)
+            sm = trimesh.creation.uv_sphere(radius)
+            sm.vertices += points[i]
             nbv = len(spheres.points)
             spheres.points += sm.points
             for face in sm.faces:
                 spheres.faces += [face + nbv]
+        with open("tmp/spheres.stl", "wb") as f:
+            f.write(trimesh.exchange.stl.export_stl(spheres))
+        spheres = trimesh.load_mesh("tmp/spheres.stl")
+
+        blender = trimesh.interfaces.blender
+        blender._search_path += ':./'
+        blender._blender_executable = find_executable('blender', path=blender._search_path)
+        blender.exists = blender._blender_executable is not None
+
+        diff = mask.difference(spheres)
         if format == "stl":
-            madcad.io.write(spheres, file_base_name + ".stl")
+            with open(file_base_name+".stl", "wb") as f:
+                f.write(trimesh.exchange.stl.export_stl(diff))
         elif format == "obj":
-            with open(file_base_name + ".obj", "w") as f:
-                for p in spheres.points:
-                    f.write(f'v {p[0]} {p[1]} {p[2]}\n')
-                for face in spheres.faces:
-                    f.write(f'f {face[0]} {face[1]} {face[2]}\n')
+            with open(file_base_name+".obj", "w") as f:
+                f.write(trimesh.exchange.obj.export_obj(diff))
 
 
 def simply_obj(file, color=False, normal=False, comment=False):
