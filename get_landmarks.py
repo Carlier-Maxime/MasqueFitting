@@ -46,8 +46,12 @@ class MyApp(ShowBase):
         base.screenshot("tmp/screen.png", False)
         lmk = self.get_landmark_2d()
         if lmk is None:
-            self.dlight.color = (0.2, 0.2, 0.2, 1.0)
-            taskMgr.doMethodLater(0, self.screenshotTask, 'screenshot')
+            if self.dlight.color != (0.2, 0.2, 0.2, 1.0):
+                self.dlight.color = (0.2, 0.2, 0.2, 1.0)
+                taskMgr.doMethodLater(0, self.screenshotTask, 'screenshot')
+            else:
+                print("les landmarks n'arrivent pas à être trouver.")
+                exit(1)
             return task.done
         util.save_points(lmk, self.file_path.split('.obj')[0], "pp")
         self.finalizeExit()
