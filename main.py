@@ -242,18 +242,17 @@ def run():
         if not file.endswith('.obj') and not file.endswith(".stl"):
             continue
         nbScan += 1
-
-        # generate normal for obj and remove color and texture
-        if file.endswith(".obj"):
-            mesh = trimesh.load_mesh(file)
-            normals = mesh.vertex_normals
-            with open(file, "w") as f:
-                f.write(trimesh.exchange.obj.export_obj(mesh, True, False, False))
-
         base_name = file.split('.obj')[0].split(".stl")[0]
+
+        # generate normal, remove color and texture, save to obj format
+        mesh = trimesh.load_mesh(file)
+        normals = mesh.vertex_normals
+        with open(base_name + ".obj", "w") as f:
+            f.write(trimesh.exchange.obj.export_obj(mesh, True, False, False))
+
         if config.auto_lmk:
             os.chdir("..")
-            os.system("python get_landmarks.py " + "input/"+file)
+            os.system("python get_landmarks.py " + "input/"+base_name+".obj")
             os.chdir('input')
         if os.path.exists(base_name + '.pp'):
             array = load_picked_points(base_name + ".pp")
