@@ -4,6 +4,7 @@ import sys
 import numpy as np
 import madcad
 import trimesh
+import logging as log
 
 import read3D
 import util
@@ -221,13 +222,14 @@ def read_all_index_opti_tri(vertices, faces, indexes_opti_tri):
 
 
 def run():
+    print("chargement de la configuration")
     config = get_config()
     if config.output_format not in ['npy', 'txt', 'pp', 'obj', 'stl']:
-        print("Le format du fichier de sortie est inconnue ou non pris en charge.")
-        exit(0)
+        log.error("Le format du fichier de sortie est inconnue ou non pris en charge.")
+        exit(1)
     if not os.path.exists('flame-fitting/models/generic_model.pkl'):
-        print("Télécharger le flame model ! (plus d'information dans README.md)")
-        exit(0)
+        log.error("Télécharger le flame model ! (plus d'information dans README.md)")
+        exit(1)
     markers = np.load("markers.npy")
     files = next(os.walk('input'), (None, None, []))[2]
     nbScan = 0
@@ -235,6 +237,8 @@ def run():
     if not os.path.exists('output'):
         os.mkdir('output')
     in_input = False
+
+    print("Parcourir les fichier du dossier input..")
     for file in files:
         if not in_input:
             os.chdir('input')
@@ -242,18 +246,23 @@ def run():
         if not file.endswith('.obj') and not file.endswith(".stl"):
             continue
         nbScan += 1
+        print(f"traitement de {file} (scan N°{nbScan})")
         base_name = file.split('.obj')[0].split(".stl")[0]
 
         # generate normal, remove color and texture, save to obj format
+        print("Préparation du fichier 3D")
         mesh = trimesh.load_mesh(file)
         normals = mesh.vertex_normals
         with open(base_name + ".obj", "w") as f:
             f.write(trimesh.exchange.obj.export_obj(mesh, True, False, False))
 
         if config.auto_lmk:
+            print("Génération automatiques des 51 landmarks..")
             os.chdir("..")
             os.system("python get_landmarks.py " + "input/"+base_name+".obj")
             os.chdir('input')
+            print("génération des landmarks, terminée.")
+        print("Préparation de flame-fitting")
         if os.path.exists(base_name + '.pp'):
             array = load_picked_points(base_name + ".pp")
             np.save("../flame-fitting/data/scan_lmks.npy", array)
@@ -269,29 +278,35 @@ def run():
             np.save("../flame-fitting/data/scan_lmks.npy", array)
         else:
             nbNoLmk += 1
-            print("Le scan 3D '" + file + " n'as pas de fichier landmark ! (le nom de ce fichier doit-être "
+            log.warning("Le scan 3D '" + file + " n'as pas de fichier landmark ! (le nom de ce fichier doit-être "
                   + base_name + ".txt ou " + base_name + ".pp)")
             continue
         shutil.copyfile(base_name + ".obj", "../flame-fitting/data/scan.obj")
         os.chdir('../flame-fitting')
         in_input = False
+        print("lancement de flame-fitting")
         os.system('python fit_scan.py')
+        print("flame-fitting terminée.")
+        print("récupération des markers 3D sur le model FLAME fitter")
         vertices, triangles = read3D.read("output/fit_scan_result.obj")
         points = read_all_index_opti_tri(vertices, triangles, markers)
+        print("transformation des marker 3D en index correspondant aux masque redimensionner")
         vertices, triangles = read3D.read('output/scan_scaled.obj')
         indexs = get_index_for_match_points(vertices, triangles, points)
+        print("Interprétation des index sur le masque de départ")
         os.chdir('..')
         mesh = madcad.io.read("input/" + base_name + ".obj")
         vertices, triangles = mesh.points, mesh.faces
         points = read_all_index_opti_tri(vertices, triangles, indexs)
+        print("Enregistrement des marker 3D obtenue")
         util.save_points(points, "output/"+base_name, config.output_format, config.radius, mesh)
     if nbScan == 0:
-        print("Aucun scan fournie.")
+        log.warning("Aucun scan fournie.")
     else:
         if nbScan != nbNoLmk:
             print(nbScan - nbNoLmk, "scan sur", nbScan, "ont été traité avec succès !")
         if nbNoLmk > 0:
-            print(nbNoLmk, "scan sur", nbScan, "n'ont pas de fichier landmark ! Ils ont donc pas pu être traité.")
+            log.warning(nbNoLmk, "scan sur", nbScan, "n'ont pas de fichier landmark ! Ils ont donc pas pu être traité.")
 
 
 if __name__ == '__main__':

@@ -2,6 +2,7 @@ import os
 import sys
 
 import cv2
+import logging as log
 import numpy as np
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import DirectionalLight, ConfigVariableString, CollisionTraverser, \
@@ -14,6 +15,7 @@ class MyApp(ShowBase):
 
     def __init__(self, file_path):
         ShowBase.__init__(self)
+        print("préparation de la scéne")
         self.file_path = file_path
         model = self.loader.load_model(file_path)
         model.reparentTo(render)
@@ -26,6 +28,7 @@ class MyApp(ShowBase):
         base.camera.setPosHpr(0, 0, 450, 0, -84, 0)
 
         # CollisionTraverser  and a Collision Handler is set up
+        print("Initialisation du laser pour revenir à la 3D")
         self.picker = CollisionTraverser()
         self.picker.showCollisions(render)
         self.pq = CollisionHandlerQueue()
@@ -40,19 +43,23 @@ class MyApp(ShowBase):
         taskMgr.doMethodLater(0, self.screenshotTask, 'screenshot')
 
     def screenshotTask(self, task):
-        print("screenshot")
+        print("screenshot de l'aperçu de la scene")
         if not os.path.isdir("tmp"):
             os.mkdir("tmp")
         base.screenshot("tmp/screen.png", False)
+
+        print("Détection des landmark 2d")
         lmk = self.get_landmark_2d()
         if lmk is None:
             if self.dlight.color != (0.2, 0.2, 0.2, 1.0):
                 self.dlight.color = (0.2, 0.2, 0.2, 1.0)
+                log.info("landmarks introuvable, changement d'éclairage et nouvelle tentative")
                 taskMgr.doMethodLater(0, self.screenshotTask, 'screenshot')
             else:
-                print("les landmarks n'arrivent pas à être trouver.")
+                log.error("les landmarks n'arrivent pas à être trouver.")
                 exit(1)
             return task.done
+        print("Sauvegarde des landmarks")
         util.save_points(lmk, self.file_path.split('.obj')[0], "pp")
         self.finalizeExit()
         return task.done
@@ -107,6 +114,7 @@ class MyApp(ShowBase):
         if len(preds) == 0:
             return None
         pts = []
+        print("Transformation des landmarks 2D en landmarks 3D")
         for pred in preds:
             p = self.pixel_to_3d_point(pred[0], pred[1])
             if p is not None:
@@ -127,11 +135,12 @@ class MyApp(ShowBase):
                 if p is not None:
                     pts.append(p)
                 else:
-                    print(f'None 3D point for pixel {x}, {y} !')
+                    log.error(f'Pas de point 3D pour le pixel {x}, {y} !')
         return pts[17:]
 
 
 if __name__ == '__main__':
+    print("Configuration de panda3d")
     args = sys.argv[1:]
     ConfigVariableString("window-type").setValue("offscreen")
     ConfigVariableString("model-cache-dir").setValue("")
