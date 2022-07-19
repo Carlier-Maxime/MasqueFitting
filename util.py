@@ -28,24 +28,31 @@ def save_points(points, file_base_name, format="npy", radius=2, mask=None, blend
                 f.write(f' <point y="{p[1]}" z="{p[2]}" active="1" name="{i}" x="{p[0]}"/>\n')
             f.write('</PickedPoints>\n')
     elif format in ["obj", "stl"]:
-        spheres = trimesh.creation.uv_sphere(radius)
-        spheres.vertices += points[0]
+        sphere = trimesh.creation.uv_sphere(radius)
+        verts = np.array(sphere.vertices)
+        faces = np.array(sphere.faces)
+        spv = verts.copy()
+        spf = faces.copy()
+        verts += points[0]
         for i in range(1, len(points)):
-            sm = trimesh.creation.uv_sphere(radius)
-            sm.vertices += points[i]
-            nbv = len(spheres.vertices)
-            spheres.vertices += sm.vertices
-            for face in sm.faces:
-                spheres.faces += [face + nbv]
+            sv = spv.copy()
+            sf = spf.copy()
+            sv += points[i]
+            nbv = len(verts)
+            verts = np.append(verts, sv, axis=0)
+            sf += nbv
+            faces = np.append(faces, sf, axis=0)
+        print(verts.shape)
+        print(faces.shape)
         with open("tmp/spheres.obj", "w") as f:
-            for v in spheres.vertices:
+            for v in verts:
                 f.write(f"v {v[0]} {v[1]} {v[2]}\n")
-            for face in spheres.faces:
+            for face in faces:
                 f.write(f"f {face[0]} {face[1]} {face[2]}\n")
         spheres = trimesh.load_mesh("tmp/spheres.obj")
 
         blender = trimesh.interfaces.blender
-        blender._search_path += ':'+blender_path
+        blender._search_path += ';'+blender_path
         blender._blender_executable = find_executable('blender', path=blender._search_path)
         blender.exists = blender._blender_executable is not None
 
