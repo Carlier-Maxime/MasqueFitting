@@ -23,6 +23,21 @@ parser.add_argument(
     help="rayon des sphere pour représenter les points dans le format obj"
 )
 
+parser.add_argument(
+    '--python_version',
+    type=str,
+    default="",
+    help="version de python utiliser si 3.9 "
+         "utilise python3.9 lors de l'appel d'autre programme python au lieu d'utiliser python"
+)
+
+parser.add_argument(
+    '--blender_path',
+    type=str,
+    default="./blender",
+    help="chemin d'accès vers le dossier de blender (utile si n'est pas installer au endroit par default)"
+)
+
 
 def get_config():
     config = parser.parse_args()

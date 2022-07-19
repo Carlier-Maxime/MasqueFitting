@@ -2,7 +2,6 @@ import os
 import shutil
 import sys
 import numpy as np
-import madcad
 import trimesh
 import logging as log
 
@@ -224,6 +223,7 @@ def read_all_index_opti_tri(vertices, faces, indexes_opti_tri):
 def run():
     print("chargement de la configuration")
     config = get_config()
+    pyv = config.python_version
     if config.output_format not in ['npy', 'txt', 'pp', 'obj', 'stl']:
         log.error("Le format du fichier de sortie est inconnue ou non pris en charge.")
         exit(1)
@@ -259,7 +259,7 @@ def run():
         if config.auto_lmk:
             print("Génération automatiques des 51 landmarks..")
             os.chdir("..")
-            os.system("python get_landmarks.py " + "input/"+base_name+".obj")
+            os.system(f"python{pyv} get_landmarks.py input/{base_name}.obj {pyv}")
             os.chdir('input')
             print("génération des landmarks, terminée.")
         print("Préparation de flame-fitting")
@@ -285,7 +285,7 @@ def run():
         os.chdir('../flame-fitting')
         in_input = False
         print("lancement de flame-fitting")
-        os.system('python fit_scan.py')
+        #os.system(f'python{pyv} fit_scan.py')
         print("flame-fitting terminée.")
         print("récupération des markers 3D sur le model FLAME fitter")
         vertices, triangles = read3D.read("output/fit_scan_result.obj")
@@ -295,11 +295,11 @@ def run():
         indexs = get_index_for_match_points(vertices, triangles, points)
         print("Interprétation des index sur le masque de départ")
         os.chdir('..')
-        mesh = madcad.io.read("input/" + base_name + ".obj")
-        vertices, triangles = mesh.points, mesh.faces
+        mesh = trimesh.load_mesh("input/" + base_name + ".obj")
+        vertices, triangles = mesh.vertices, mesh.faces
         points = read_all_index_opti_tri(vertices, triangles, indexs)
         print("Enregistrement des marker 3D obtenue")
-        util.save_points(points, "output/"+base_name, config.output_format, config.radius, mesh)
+        util.save_points(points, "output/"+base_name, config.output_format, config.radius, mesh, config.blender_path)
     if nbScan == 0:
         log.warning("Aucun scan fournie.")
     else:

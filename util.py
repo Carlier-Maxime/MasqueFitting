@@ -5,7 +5,7 @@ import numpy as np
 import trimesh
 
 
-def save_points(points, file_base_name, format="npy", radius=2, mask=None):
+def save_points(points, file_base_name, format="npy", radius=2, mask=None, blender_path="./blender"):
     if format == "npy":
         np.save(file_base_name + ".npy", points)
     elif format == "txt":
@@ -29,19 +29,23 @@ def save_points(points, file_base_name, format="npy", radius=2, mask=None):
             f.write('</PickedPoints>\n')
     elif format in ["obj", "stl"]:
         spheres = trimesh.creation.uv_sphere(radius)
+        spheres.vertices += points[0]
         for i in range(1, len(points)):
             sm = trimesh.creation.uv_sphere(radius)
             sm.vertices += points[i]
-            nbv = len(spheres.points)
-            spheres.points += sm.points
+            nbv = len(spheres.vertices)
+            spheres.vertices += sm.vertices
             for face in sm.faces:
                 spheres.faces += [face + nbv]
-        with open("tmp/spheres.stl", "wb") as f:
-            f.write(trimesh.exchange.stl.export_stl(spheres))
-        spheres = trimesh.load_mesh("tmp/spheres.stl")
+        with open("tmp/spheres.obj", "w") as f:
+            for v in spheres.vertices:
+                f.write(f"v {v[0]} {v[1]} {v[2]}\n")
+            for face in spheres.faces:
+                f.write(f"f {face[0]} {face[1]} {face[2]}\n")
+        spheres = trimesh.load_mesh("tmp/spheres.obj")
 
         blender = trimesh.interfaces.blender
-        blender._search_path += ':./'
+        blender._search_path += ':'+blender_path
         blender._blender_executable = find_executable('blender', path=blender._search_path)
         blender.exists = blender._blender_executable is not None
 

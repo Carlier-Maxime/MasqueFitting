@@ -13,10 +13,11 @@ import util
 
 class MyApp(ShowBase):
 
-    def __init__(self, file_path):
+    def __init__(self, file_path, pyv):
         ShowBase.__init__(self)
         print("préparation de la scéne")
         self.file_path = file_path
+        self.pyv = pyv
         model = self.loader.load_model(file_path)
         model.reparentTo(render)
         self.dlight = DirectionalLight('my dlight')
@@ -108,7 +109,7 @@ class MyApp(ShowBase):
 
     def get_landmark_2d(self):
         os.chdir("lmk-detection")
-        os.system("python lmk_detection.py ../tmp/screen.png")
+        os.system(f"python{self.pyv} lmk_detection.py ../tmp/screen.png")
         os.chdir("..")
         preds = np.load("lmk-detection/lmk.npy")
         if len(preds) == 0:
@@ -143,5 +144,7 @@ if __name__ == '__main__':
     print("Configuration de panda3d")
     loadPrcFile("etc/Config.prc")
     args = sys.argv[1:]
-    app = MyApp(str(args[0]))
+    if len(args)<2:
+        args.append("")
+    app = MyApp(str(args[0]), str(args[1]))
     app.run()
