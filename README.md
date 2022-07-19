@@ -3,8 +3,8 @@
 ## Description
 
 Masque Fitting vous permet à partir d'un scan 3D et des coordonnées des 51 landmark (voir [Utilisation](#utilisation)), <br>
-d'obtenir les coordonnées des N marqueur correspondant aux points choisie <br>
-sur le visage flame. Par défaut ils vous retournent ces 105 points :
+d'obtenir les coordonnées des N marqueur correspondant aux points choisie sur le visage flame. <br>
+Par défaut ils vous retournent ces 105 points : <br>
 ![Représentation des 105 points](105points.gif) <br>
 (Cette image est un gif d'illustration issue de [VisageGenerator](https://github.com/Carlier-Maxime/Visage-Generator)) <br>
 Bien entendu les coordonnées de ces 105 points sont adapté afin de collé aux masque fournie.
@@ -18,7 +18,7 @@ Pour installer / éxécuter Masque Fitting vous devez avoir :
 - [python](https://www.python.org/) (pour éxécutez les fichier python dont ce programme)
 - [git](https://git-scm.com/) (pour récupérer les dépendance présant sur des dépot git ([psbody-mesh](https://github.com/MPI-IS/mesh) et [eigen](https://gitlab.com/libeigen/eigen)))
 - **g++** (pas tester si nécessaire, mais je suppose qu'il est nécessaire pour compiler [eigen](https://gitlab.com/libeigen/eigen))
-- **7zip** ou tout autre gestionnaire de fichier zip afin de dézipper le fichier model
+- [7zip](https://www.7-zip.org/download.html) ou tout autre gestionnaire de fichier zip afin de dézipper le fichier model
 
 ### Récupération
 
@@ -38,6 +38,21 @@ Ouvrez un terminal ou un invite de commande et lancer le fichier d'installation 
 ```
 python INSTALL.py
 ```
+
+Si vous voulez installer manuellement les dépendance voici quelques information : <br>
+
+- la liste des dépendance requise se trouve dans les fichier requirements.txt (sauf exception)
+- pour psbody-mesh il faudra probalement installer [boost](https://www.boost.org/)
+- Pour installer psbody-mesh sous Windows prener la version présent sur ce [dépôt](https://github.com/johnbanq/mesh/tree/fix/MSVC_compilation)
+- la plupart des dépendance s'installe avec ```pip install <name_package>```
+- lmk-detection néssecite une version de numpy antèrieur pour l'installer correctement éxécuter :<br>
+```pip install numpy==1.22 --target lmk-detection/numpy_1.22```
+- par défaut vous devez installer eigen dans flame-fitting/sbody/alignment/mesh-distance. <br>
+Pour plus d'information liser le readme de flame-fitting
+- pour installer eigen sous windows au lieu de éxécuter ```make``` éxécuter
+```python setup.py build_ext --inplace```
+
+en éspérant que ces information pour l'installation manuelle vous auront était utile.
 
 ## Utilisation
 
