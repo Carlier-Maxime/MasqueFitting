@@ -28,30 +28,21 @@ def save_points(points, file_base_name, format="npy", radius=2, mask=None, blend
                 f.write(f' <point y="{p[1]}" z="{p[2]}" active="1" name="{i}" x="{p[0]}"/>\n')
             f.write('</PickedPoints>\n')
     elif format in ["obj", "stl"]:
-        sphere = trimesh.creation.uv_sphere(radius)
-        verts = np.array(sphere.vertices)
-        faces = np.array(sphere.faces)
-        spv = verts.copy()
-        spf = faces.copy()
-        with open("tmp/spheres.obj", "w") as f:
-            for i in range(len(points)):
-                sv = spv.copy()
-                sf = spf.copy()
-                sv += points[i]
-                nbv = len(verts)
-                sf += nbv
-                for v in sv:
-                    f.write(f"v {v[0]} {v[1]} {v[2]}\n")
-                for face in sf:
-                    f.write(f"f {face[0]} {face[1]} {face[2]}\n")
-        spheres = trimesh.load_mesh("tmp/spheres.obj")
+        print("transformation des points en sphere")
+        spheres = []
+        for i in range(len(points)):
+            sphere = trimesh.creation.uv_sphere(radius)
+            sphere.vertices += points[i]
+            spheres.append(sphere)
 
+        print("différence boolean avec le masque d'origine")
         blender = trimesh.interfaces.blender
         blender._search_path += ';'+blender_path
         blender._blender_executable = find_executable('blender', path=blender._search_path)
         blender.exists = blender._blender_executable is not None
-
         diff = mask.difference(spheres)
+
+        print("sauvegarde du résultat")
         if format == "stl":
             with open(file_base_name+".stl", "wb") as f:
                 f.write(trimesh.exchange.stl.export_stl(diff))
