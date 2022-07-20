@@ -253,13 +253,13 @@ def run():
         print("Préparation du fichier 3D")
         mesh = trimesh.load_mesh(file)
         normals = mesh.vertex_normals
-        with open(base_name + ".obj", "w") as f:
+        with open("../tmp/" + base_name + ".obj", "w") as f:
             f.write(trimesh.exchange.obj.export_obj(mesh, True, False, False))
 
         if config.auto_lmk:
             print("Génération automatiques des 51 landmarks..")
             os.chdir("..")
-            os.system(f"python{pyv} get_landmarks.py input/{base_name}.obj {pyv}")
+            os.system(f"python{pyv} get_landmarks.py tmp/{base_name}.obj {pyv}")
             os.chdir('input')
             print("génération des landmarks, terminée.")
         print("Préparation de flame-fitting")
@@ -281,11 +281,12 @@ def run():
             log.warning("Le scan 3D '" + file + " n'as pas de fichier landmark ! (le nom de ce fichier doit-être "
                   + base_name + ".txt ou " + base_name + ".pp)")
             continue
-        shutil.copyfile(base_name + ".obj", "../flame-fitting/data/scan.obj")
-        os.chdir('../flame-fitting')
+        os.chdir('../')
+        shutil.copyfile("tmp/" + base_name + ".obj", "flame-fitting/data/scan.obj")
+        os.chdir('flame-fitting')
         in_input = False
         print("lancement de flame-fitting")
-        os.system(f'python{pyv} fit_scan.py')
+        #os.system(f'python{pyv} fit_scan.py')
         print("flame-fitting terminée.")
         print("récupération des markers 3D sur le model FLAME fitter")
         vertices, triangles = read3D.read("output/fit_scan_result.obj")
@@ -295,7 +296,7 @@ def run():
         indexs = get_index_for_match_points(vertices, triangles, points)
         print("Interprétation des index sur le masque de départ")
         os.chdir('..')
-        mesh = trimesh.load_mesh("input/" + base_name + ".obj")
+        mesh = trimesh.load_mesh("tmp/" + base_name + ".obj")
         vertices, triangles = mesh.vertices, mesh.faces
         points = read_all_index_opti_tri(vertices, triangles, indexs)
         print("Enregistrement des marker 3D obtenue")

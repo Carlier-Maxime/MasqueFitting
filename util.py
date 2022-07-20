@@ -33,22 +33,17 @@ def save_points(points, file_base_name, format="npy", radius=2, mask=None, blend
         faces = np.array(sphere.faces)
         spv = verts.copy()
         spf = faces.copy()
-        verts += points[0]
-        for i in range(1, len(points)):
-            sv = spv.copy()
-            sf = spf.copy()
-            sv += points[i]
-            nbv = len(verts)
-            verts = np.append(verts, sv, axis=0)
-            sf += nbv
-            faces = np.append(faces, sf, axis=0)
-        print(verts.shape)
-        print(faces.shape)
         with open("tmp/spheres.obj", "w") as f:
-            for v in verts:
-                f.write(f"v {v[0]} {v[1]} {v[2]}\n")
-            for face in faces:
-                f.write(f"f {face[0]} {face[1]} {face[2]}\n")
+            for i in range(len(points)):
+                sv = spv.copy()
+                sf = spf.copy()
+                sv += points[i]
+                nbv = len(verts)
+                sf += nbv
+                for v in sv:
+                    f.write(f"v {v[0]} {v[1]} {v[2]}\n")
+                for face in sf:
+                    f.write(f"f {face[0]} {face[1]} {face[2]}\n")
         spheres = trimesh.load_mesh("tmp/spheres.obj")
 
         blender = trimesh.interfaces.blender
