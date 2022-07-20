@@ -260,7 +260,7 @@ def run():
             print("Génération automatiques des 51 landmarks..")
             os.chdir("..")
             os.system(f"python{pyv} get_landmarks.py tmp/{base_name}.obj {pyv}")
-            os.chdir('input')
+            os.chdir('tmp')
             print("génération des landmarks, terminée.")
         print("Préparation de flame-fitting")
         if os.path.exists(base_name + '.pp'):
@@ -281,9 +281,9 @@ def run():
             log.warning("Le scan 3D '" + file + " n'as pas de fichier landmark ! (le nom de ce fichier doit-être "
                   + base_name + ".txt ou " + base_name + ".pp)")
             continue
-        os.chdir('../')
-        shutil.copyfile("tmp/" + base_name + ".obj", "flame-fitting/data/scan.obj")
-        os.chdir('flame-fitting')
+        os.chdir("../tmp")
+        shutil.copyfile(base_name + ".obj", "../flame-fitting/data/scan.obj")
+        os.chdir('../flame-fitting')
         in_input = False
         print("lancement de flame-fitting")
         os.system(f'python{pyv} fit_scan.py')
