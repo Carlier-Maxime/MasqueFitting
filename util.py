@@ -154,6 +154,23 @@ def get_normal_core(normal, tri_normal, triangles, ntri):
 
 
 def change_markers(scan_path, pts_path, lmk_path=None, pyv=""):
+    print("Vérification et chargement des points")
+    if pts_path.endswith(".txt"):
+        points = []
+        with open(pts_path, "r") as f:
+            while f.readable():
+                line = f.readline()
+                if line=="":
+                    break
+                line = line.split(",")[:3]
+                p = [float(line[x].split('"')[1]) for x in range(3)]
+                points.append(p)
+        points = np.array(points)
+    elif pts_path.endswith(".npy"):
+        points = np.load(pts_path)
+    else:
+        log.warning("Format non prise en charge ! (le fichier pts doit-être au format txt ou npy)")
+        exit(1)
     print("Préparation du fichier 3D")
     base_name = scan_path.split('.obj')[0].split(".stl")[0].split("/")
     base_name = base_name[len(base_name)-1]
@@ -183,7 +200,6 @@ def change_markers(scan_path, pts_path, lmk_path=None, pyv=""):
     print("flame-fitting terminée.")
     print("transformation des points en index")
     vertices, triangles = read3D.read(f"tmp/{base_name}.obj")
-    points = np.load(pts_path)
     indexs = get_index_for_match_points(vertices, triangles, points)
     print("utilisation des index obtenue sur le masque redimenssionner")
     vertices, triangles = read3D.read('flame-fitting/output/scan_scaled.obj')
