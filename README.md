@@ -2,8 +2,7 @@
 
 ## Description
 
-Masque Fitting vous permet à partir d'un scan 3D et des coordonnées des 51 landmark (voir [Utilisation](#utilisation)), <br>
-d'obtenir les coordonnées des N marqueur correspondant aux points choisie sur le visage flame. <br>
+Masque Fitting vous permet à partir d'un scan 3D d'obtenir les coordonnées des N marqueur correspondant aux points choisie sur le visage flame. (voir [Utilisation](#utilisation)) <br>
 Par défaut ils vous retournent ces 105 points : <br>
 ![Représentation des 105 points](105points.gif) <br>
 (Cette image est un gif d'illustration issue de [VisageGenerator](https://github.com/Carlier-Maxime/Visage-Generator)) <br>
@@ -34,12 +33,12 @@ et dézipper l'archive obtenue puis placer son contenu (les 3 fichier model) dan
 
 ### Dépendance
 
-Ouvrez un terminal ou un invite de commande et lancer le fichier d'installation :
+Ouvrez un terminal ou un invite de commande et lancer le fichier d'installation (ne fonctionne pas sur Windows) :
 ```
 python INSTALL.py
 ```
 
-Si vous voulez installer manuellement les dépendance voici quelques information : <br>
+Si vous voulez installer manuellement les dépendance ou que vous êtes sur Windows, voici quelques information : <br>
 
 - la liste des dépendance requise se trouve dans les fichier requirements.txt (sauf exception)
 - pour psbody-mesh il faudra probalement installer [boost](https://www.boost.org/)
@@ -54,21 +53,31 @@ Pour plus d'information liser le readme de flame-fitting
 
 en éspérant que ces information pour l'installation manuelle vous auront était utile.
 
+### Addon
+
+Vous pouvez utiliser les points directement pour les transformer en sphere et faire la difference boolean sur le masque d'entrée <br>
+afin d'obtenir directement le masque d'entrée au lieu d'un nuages de points. (format d'enregistrement OBJ et STL supporté) <br>
+pour cela il est nécessaire de installer [blender](https://www.blender.org/), car le programme l'utilise pour faire la difference boolean. <br>
+Ensuite si vous ne l'avez pas installer à l'endroit par défaut vous devez spécifier le chemin blender au lancement ou dans config.py. <br>
+
 ## Utilisation
 
 ### pré-requis
 
 Vous devez avoir :
-- un ou plusieur scan 3D de masque au format obj
-- un logiciel permettant de placer des point sur un objet 3D et de récupérer les coordonnées de ces dit points.
+- un ou plusieur scan 3D de masque au format obj ou stl
+- un logiciel permettant de placer des point sur un objet 3D et de récupérer les coordonnées de ces dit points. (**conseiller**)
 - installer ce programme
 
 ### préparation des données d'entrée
 
 Le programme a besoin pour fonctionner de données d'entrée. <br>
-Il lui faut un ou plusieur scan 3D au format obj et avec pour chaque scan un fichier contenant les coordonnées des 51 landmark au format txt ou pp. <br>
-Voici une aperçu de là où il faut placer ces 51 landmark :
-![Image montrant les position des 51 landmark](./flame-fitting/data/landmarks_51_annotated.png)
+Il lui faut un ou plusieur scan 3D au format OBJ ou STL. <br>
+Si vous avez un problème lors de la détection de landmakrs, <br>
+ajouter pour chaque scan ayant ce problème un fichier contenant les coordonnées des 51 landmark dans l'ordre au format txt ou pp. <br>
+Voici une aperçu de là où il faut placer ces 51 landmark et de l'ordre (la précision n'est pas très importante) : <br>
+![Image montrant les position des 51 landmark](./flame-fitting/data/landmarks_51_annotated.png) <br>
+(Image issue de [flame-fitting](https://github.com/Rubikplayer/flame-fitting)) <br>
 Une fois tous les fichier demander obtenue placer les dans le dossier input.
 
 ### éxécution
@@ -79,37 +88,44 @@ pour cela ouvrez un terminal / invite de commande et éxécuter :
 python main.py
 ```
 
-### récupération des données de sortie
-
-Une fois l'éxécution terminer, vous retrouverer les données de sortie dans le dossier output.
-Pour chaque scan il vous ressort un fichier contenant les coordonnées des marqueurs.
-Le fichier à le même nom que le scan mais avec une extension différente.
-
 ### options
 
-Vous pouvez paramètrez le type de format pour le fichier de sortie,
-en le spécifiant lors du lancement du programme. <br>
-Voici un exemple pour le format txt :
+Plusieur paramètre sont disponnible en voici la liste (vous pouvez modifier / voir les valeur par défaut dans config.py) :
+- **output_format** : format du fichier de sortie.
+- **auto_lmk** : définie si les 51 landmarks sont générés de manière automatique ou non.
+- **radius** : rayon des spheres utilisée pour généré les trou des masque lors de l'enregistrement dans le format stl ou obj
+- **python_version** : version de python utilisée, utile uniquement si la commande ```python``` n'as pas la bonne version. Et lance à la place ```python<python_version>```
+- **blender_path** : chemin du dossier contenant [blender](https://www.blender.org/). (inutile de changer si installer à l'endroit par défaut proposer par l'installateur [blender](https://www.blender.org/))
+
+Voici quelques exemples d'éxécution avec paramètre :
 ```
-python main.py --output_format=txt
+python main.py --output_format=stl --auto_lmk=True --blender_path="E:\\Program Files\\Blender Foundation\\Blender 3.2"
+```
+```
+python main.py --output_format=obj --radius=5 --python_version=3.9
 ```
 
-Si vous n'aimez pas spécifier à chaque lancement du programme le format de sortie, <br>
-rendez-vous dans le fichier **config.py** et changer la valeur par défaut.
+### récupération des données de sortie
+
+Une fois l'éxécution terminer, vous retrouverer les données de sortie dans le dossier output. <br>
+Pour chaque scan il vous ressort un fichier contenant les coordonnées des marqueurs ou le masque trouer resultant. (dépand du format de sortie choisie) <br>
+Le fichier à le même nom que le masque d'entrée mais avec l'extension correspondant au format de sortie.
 
 ### formats
 
 Liste des différent format prise en charge :
 - **npy** : fichier numpy pouvant être lu avec python grâce à numpy.
-- **txt** : fichier texte pouvant être lu par Rhinoceros 3D ou dans un éditeur de texte.
+- **txt** : fichier texte pouvant être lu par Rhinoceros 3D ou dans un éditeur de texte ou un tableur (équivaut à un fichier .csv).
 - **pp** : fichier picked points pouvant être lu par MeshLab, <br> 
   il se base sur une structure HTML vous pouvez donc l'ouvrir avec un éditeur de texte.
-- **obj** : fichier objet 3D, les points sont représenter par des sphére
+- **obj** : fichier wavefront (objet 3D),  contient le masque de départ trouer à partir des points des marker (**nécessite [blender](https://www.blender.org/)**)
+- **stl** : fichier stéréolithographie (objet 3D) contient le masque de départ trouer à partir des points des marker (**nécessite [blender](https://www.blender.org/)**)
   
 ## Ressources
 
-Liste des resources utilisée :
+Liste des resources utilisée (non exaustive) :
 - [Flame](https://flame.is.tue.mpg.de/)
 - [flame-fitting](https://github.com/Rubikplayer/flame-fitting)
 - [eigen](https://gitlab.com/libeigen/eigen)
+- [panda3d](https://www.panda3d.org/)
 - [Visage-Generator](https://github.com/Carlier-Maxime/Visage-Generator)
