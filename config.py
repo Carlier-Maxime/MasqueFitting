@@ -19,7 +19,7 @@ parser.add_argument(
 parser.add_argument(
     '--radius',
     type=float,
-    default=0.5,
+    default=1.0,
     help="rayon des sphere pour représenter les points dans le format obj"
 )
 
