@@ -1,4 +1,5 @@
 import os
+import sys
 import shutil
 from datetime import datetime
 from distutils.spawn import find_executable
@@ -45,17 +46,17 @@ def save_points(points, file_base_name, format="npy", radius=2, mask=None, blend
 
         print("différence boolean avec le masque d'origine")
         blender = trimesh.interfaces.blender
-        blender._search_path += ';'+blender_path
+        blender._search_path += ';' + blender_path
         blender._blender_executable = find_executable('blender', path=blender._search_path)
         blender.exists = blender._blender_executable is not None
         diff = mask.difference(spheres)
 
         print("sauvegarde du résultat")
         if format == "stl":
-            with open(file_base_name+".stl", "wb") as f:
+            with open(file_base_name + ".stl", "wb") as f:
                 f.write(trimesh.exchange.stl.export_stl(diff))
         elif format == "obj":
-            with open(file_base_name+".obj", "w") as f:
+            with open(file_base_name + ".obj", "w") as f:
                 f.write(trimesh.exchange.obj.export_obj(diff))
 
 
@@ -160,7 +161,7 @@ def change_markers(scan_path, pts_path, lmk_path=None, pyv=""):
         with open(pts_path, "r") as f:
             while f.readable():
                 line = f.readline()
-                if line=="":
+                if line == "":
                     break
                 line = line.split(",")[:3]
                 p = [float(line[x].split('"')[1]) for x in range(3)]
@@ -173,7 +174,7 @@ def change_markers(scan_path, pts_path, lmk_path=None, pyv=""):
         exit(1)
     print("Préparation du fichier 3D")
     base_name = scan_path.split('.obj')[0].split(".stl")[0].split("/")
-    base_name = base_name[len(base_name)-1]
+    base_name = base_name[len(base_name) - 1]
     mesh = trimesh.load_mesh(scan_path)
     normals = mesh.vertex_normals
     with open("tmp/" + base_name + ".obj", "w") as f:
@@ -192,15 +193,15 @@ def change_markers(scan_path, pts_path, lmk_path=None, pyv=""):
     else:
         log.warning("Le scan 3D '" + scan_path + " n'as pas de fichier landmark ! (le nom de ce fichier doit-être "
                     + base_name + ".txt ou " + base_name + ".pp)")
-    shutil.copyfile(scan_path, "flame-fitting/data/scan.obj")
+    shutil.copyfile(f"tmp/{base_name}.obj", "flame-fitting/data/scan.obj")
     print("lancement de flame-fitting")
     os.chdir("flame-fitting")
-    os.system(f'python{pyv} fit_scan.py')
+    #os.system(f'python{pyv} fit_scan.py')
     os.chdir("..")
     print("flame-fitting terminée.")
     print("transformation des points en index")
     vertices, triangles = read3D.read(f"tmp/{base_name}.obj")
-    indexs = get_index_for_match_points(vertices, triangles, points)
+    indexs = get_index_for_match_points(vertices, triangles, points, verbose=True)
     print("utilisation des index obtenue sur le masque redimenssionner")
     vertices, triangles = read3D.read('flame-fitting/output/scan_scaled.obj')
     points = read_all_index_opti_tri(vertices, triangles, indexs)
@@ -415,3 +416,4 @@ def read_all_index_opti_tri(vertices, faces, indexes_opti_tri):
     for indexOptiTri in indexes_opti_tri:
         points.append(read_index_opti_tri(vertices, faces, indexOptiTri))
     return points
+
