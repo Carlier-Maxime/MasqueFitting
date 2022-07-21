@@ -196,7 +196,7 @@ def change_markers(scan_path, pts_path, lmk_path=None, pyv=""):
     shutil.copyfile(f"tmp/{base_name}.obj", "flame-fitting/data/scan.obj")
     print("lancement de flame-fitting")
     os.chdir("flame-fitting")
-    #os.system(f'python{pyv} fit_scan.py')
+    os.system(f'python{pyv} fit_scan.py')
     os.chdir("..")
     print("flame-fitting terminée.")
     print("transformation des points en index")
