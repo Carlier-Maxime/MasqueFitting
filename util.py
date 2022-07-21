@@ -1,8 +1,16 @@
+import os
+import shutil
 from datetime import datetime
 from distutils.spawn import find_executable
 
 import numpy as np
+import logging as log
 import trimesh
+
+import read3D
+
+sys.path.append('flame-fitting')
+from fitting.landmarks import load_picked_points
 
 
 def save_points(points, file_base_name, format="npy", radius=2, mask=None, blender_path="./blender"):
@@ -143,3 +151,251 @@ def get_normal_core(normal, tri_normal, triangles, ntri):
             normal[tri_p0_ind][j] = normal[tri_p0_ind][j] + tri_normal[i][j]
             normal[tri_p1_ind][j] = normal[tri_p1_ind][j] + tri_normal[i][j]
             normal[tri_p2_ind][j] = normal[tri_p2_ind][j] + tri_normal[i][j]
+
+
+def change_markers(scan_path, pts_path, lmk_path=None, pyv=""):
+    print("Préparation du fichier 3D")
+    base_name = scan_path.split('.obj')[0].split(".stl")[0].split("/")
+    base_name = base_name[len(base_name)-1]
+    mesh = trimesh.load_mesh(scan_path)
+    normals = mesh.vertex_normals
+    with open("tmp/" + base_name + ".obj", "w") as f:
+        f.write(trimesh.exchange.obj.export_obj(mesh, True, False, False))
+
+    if lmk_path is None:
+        print("Génération automatiques des 51 landmarks..")
+        os.system(f"python{pyv} get_landmarks.py tmp/{base_name}.obj {pyv}")
+        lmk_path = f"tmp/{base_name}.pp"
+        print("génération des landmarks, terminée.")
+
+    print("Préparation de flame-fitting")
+    if os.path.exists(lmk_path):
+        array = load_picked_points(lmk_path)
+        np.save("flame-fitting/data/scan_lmks.npy", array)
+    else:
+        log.warning("Le scan 3D '" + scan_path + " n'as pas de fichier landmark ! (le nom de ce fichier doit-être "
+                    + base_name + ".txt ou " + base_name + ".pp)")
+    shutil.copyfile(scan_path, "flame-fitting/data/scan.obj")
+    print("lancement de flame-fitting")
+    os.chdir("flame-fitting")
+    os.system(f'python{pyv} fit_scan.py')
+    os.chdir("..")
+    print("flame-fitting terminée.")
+    print("transformation des points en index")
+    vertices, triangles = read3D.read(f"tmp/{base_name}.obj")
+    points = np.load(pts_path)
+    indexs = get_index_for_match_points(vertices, triangles, points)
+    print("utilisation des index obtenue sur le masque redimenssionner")
+    vertices, triangles = read3D.read('flame-fitting/output/scan_scaled.obj')
+    points = read_all_index_opti_tri(vertices, triangles, indexs)
+    print("transformation des points en index pour le visage FLAME")
+    vertices, triangles = read3D.read("flame-fitting/output/fit_scan_result.obj")
+    indexs = get_index_for_match_points(vertices, triangles, points)
+    print("Enregistrement des indexs de marker obtenue")
+    np.save("markers.npy", indexs)
+
+
+def get_index_for_match_points(vertices, faces, points, verbose=False, triangle_optimize=True, pas_tri=1000):
+    """
+    allows you to obtain the clues that best correspond to the points provided.
+    it can be vertex indexes or more complex indexes depending on the triangle_optimize value.
+
+    Parameters
+    ----------
+    vertices : array
+        the array of all vertex (one vertex is a point represented in an array : [x, y, z])
+    faces : array
+        the array of all face / triangle (one face is an array containing 3 index of vertex : [i, j, k])
+    points : array
+        the array of all point (one point is represented in an array : [x, y, z])
+    verbose : bool
+        is a boolean allowing to choose to display or not the progress
+    triangle_optimize : bool
+            is a boolean allowing to choose whether or not to use the triangles to optimize the index.
+            Optimization with triangles returns indexes which are arrays containing different information:
+            the format of index : [index_vertex, index_triangle, percentage_vector_1, percentage_vector_2]
+            format detail :
+                - index_vertex: index of vertex
+                - index_triangle: index of triangle
+                - percentage_vector_1: percentage of vector one
+                - percentage_vector_2: percentage of vector two
+            vector 1 and 2 are calculated using as origin the vertex of index index_vertex and as
+            destination one of the other points of the triangle.
+            the destination point is obtained with respect to the order of the vertices in the triangle,
+            by not tacking the original vertices. the list of possibility :
+            - [origin, dest1, dest2]
+            - [dest1, origin, dest2]
+            - [dest1, dest2, origin]
+    pas_tri : int
+        is an integer corresponding to the progress step for the vectors. (1000 == 0.1% of vector per step)
+
+    Returns
+    -------
+    list
+        a list index of index matching points.
+    """
+    assert len(vertices) > 0
+
+    list_index = []
+    no_tri = 0
+    for ind in range(len(points)):
+        if verbose:
+            print(ind, "/", len(points) - 1, "points")
+        p = points[ind]
+        index = -1
+        dist = -1
+        v = []
+        for i in range(len(vertices)):
+            v = vertices[i]
+            d = np.sqrt((v[0] - p[0]) ** 2 + (v[1] - p[1]) ** 2 + (v[2] - p[2]) ** 2)
+            if dist == -1 or d < dist:
+                index = i
+                dist = d
+        if triangle_optimize:
+            index_triangles = get_index_triangles_match_vertex(faces, index)
+            triangles = np.array(faces)[index_triangles]
+            triangles = np.array(vertices)[triangles]
+            vectors = get_vector_for_point(triangles, vertices[index])
+            ind_vect = -1
+            percentage = [0, 0]
+            dist2 = dist
+            for i in range(len(vectors)):
+                vect = np.array(vectors[i]) / pas_tri
+                perc = []
+                distance = dist
+                vert = vertices[index]
+                for j in range(len(vect)):
+                    pas = 0
+                    for k in range(1, pas_tri):
+                        v = vert + vect[j] * k
+                        d = np.sqrt((v[0] - p[0]) ** 2 + (v[1] - p[1]) ** 2 + (v[2] - p[2]) ** 2)
+                        if d <= distance:
+                            pas = k
+                            distance = d
+                        else:
+                            break
+                    perc.append(pas / pas_tri)
+                    vert = v
+                if distance < dist2:
+                    dist2 = distance
+                    ind_vect = i
+                    percentage = perc
+            if ind_vect == -1:
+                ind_tri = -1
+                no_tri += 1
+            else:
+                ind_tri = index_triangles[ind_vect]
+            list_index.append([index, ind_tri, percentage[0], percentage[1]])
+        else:
+            list_index.append(index)
+    if verbose:
+        print(no_tri, "/", len(points), " points no need triangles !")
+    return list_index
+
+
+def get_index_triangles_match_vertex(triangles, index_vertex):
+    """
+    provides a list containing the indices of all triangles that contain the provided vertex
+
+    Parameters
+    ----------
+    triangles : array
+        the array of all triangle / face (one triangle is an array containing 3 index of vertex : [i, j, k])
+    index_vertex : int
+        the index of the vertex
+
+    Returns
+    -------
+    list
+        a list containing the indices of all triangles that contain the provided vertex
+
+    """
+    faces = []
+    for i in range(len(triangles)):
+        if index_vertex in triangles[i]:
+            faces.append(i)
+    return faces
+
+
+def get_vector_for_point(triangles, p):
+    """
+    input:
+        - triangles : triangle array => triangle = coo triangle [x,y,z]
+        - p : coo point
+    """
+    vectors = []
+    for triangle in triangles:
+        t = [0, 0, 0]
+        ind = []
+        for i in range(3):
+            if p[0] == triangle[i][0] and p[1] == triangle[i][1] and p[2] == triangle[i][2]:
+                t[0] = triangle[i]
+            else:
+                ind.append(i)
+        if len(ind) > 2:
+            print("Error in getVectoForPoint in main.py ! (verify your point is vertex of triangles)")
+            exit(1)
+        t[1] = triangle[ind[0]]
+        t[2] = triangle[ind[1]]
+
+        v = []
+        for i in range(1, 3):
+            v.append([t[i][0] - p[0], t[i][1] - p[1], t[i][2] - p[2]])
+        vectors.append(v)
+    return vectors
+
+
+def read_index_opti_tri(vertices, faces, index_opti_tri):
+    """
+    allows to retrieve the index point of the type :
+    [index_vertex, index_triangle, percentage_vector_1, percentage_vector_2]
+
+    Parameters
+    ----------
+    vertices : array
+        the array of all vertex (one vertex is a point represented in an array : [x, y, z])
+    faces : array
+        the array of all face / triangle (one face is an array containing 3 index of vertex : [i, j, k])
+    index_opti_tri : array
+        a index of type : [index_vertex, index_triangle, percentage_vector_1, percentage_vector_2]
+
+
+    Returns
+    -------
+    point
+        the point corresponding to the given index, point represented in an array : [x, y, z]
+
+    """
+    p = vertices[int(index_opti_tri[0])]
+    if index_opti_tri[1] != -1:
+        tri = np.array(vertices)[faces[int(index_opti_tri[1])]]
+        vectors = np.array(get_vector_for_point([tri], p)[0])
+        p = p + vectors[0] * index_opti_tri[2]
+        p = p + vectors[1] * index_opti_tri[3]
+    return p
+
+
+def read_all_index_opti_tri(vertices, faces, indexes_opti_tri):
+    """
+    allows you to obtain all the points corresponding to the indexes opti tri provided
+
+    Parameters
+    ----------
+    vertices : array
+        the array of all vertex (one vertex is a point represented in an array : [x, y, z])
+    faces : array
+        the array of all face / triangle (one face is an array containing 3 index of vertex : [i, j, k])
+    indexes_opti_tri : array
+        an array of all the opti tri indexes whose points you want.
+        format of one index : [index_vertex, index_triangle, percentage_vector_1, percentage_vector_2]
+
+    Returns
+    -------
+    array
+        the array of all point corresponding to the indexes provided. point represented in an array : [x, y, z]
+
+    """
+    points = []
+    for indexOptiTri in indexes_opti_tri:
+        points.append(read_index_opti_tri(vertices, faces, indexOptiTri))
+    return points
