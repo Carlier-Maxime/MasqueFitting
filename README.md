@@ -91,11 +91,11 @@ python main.py
 ### options
 
 Plusieur paramètre sont disponnible en voici la liste (vous pouvez modifier / voir les valeur par défaut dans config.py) :
-- **output_format** : format du fichier de sortie.
-- **auto_lmk** : définie si les 51 landmarks sont générés de manière automatique ou non.
-- **radius** : rayon des spheres utilisée pour généré les trou des masque lors de l'enregistrement dans le format stl ou obj
-- **python_version** : version de python utilisée, utile uniquement si la commande ```python``` n'as pas la bonne version. Et lance à la place ```python<python_version>```
-- **blender_path** : chemin du dossier contenant [blender](https://www.blender.org/). (inutile de changer si installer à l'endroit par défaut proposer par l'installateur [blender](https://www.blender.org/))
+- ```--output_format``` : format du fichier de sortie.
+- ```--auto_lmk``` : définie si les 51 landmarks sont générés de manière automatique ou non.
+- ```--radius``` : rayon des spheres utilisée pour généré les trou des masque lors de l'enregistrement dans le format stl ou obj
+- ```--python_version``` : version de python utilisée, utile uniquement si la commande ```python``` n'as pas la bonne version. Et lance à la place ```python<python_version>```
+- ```--blender_path``` : chemin du dossier contenant [blender](https://www.blender.org/). (inutile de changer si installer à l'endroit par défaut proposer par l'installateur [blender](https://www.blender.org/))
 
 Voici quelques exemples d'éxécution avec paramètre :
 ```
