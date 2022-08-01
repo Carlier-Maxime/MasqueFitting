@@ -5,7 +5,6 @@ import numpy as np
 import trimesh
 import logging as log
 
-import read3D
 import util
 
 from config import get_config
@@ -83,10 +82,12 @@ def run():
         os.system(f'python{pyv} fit_scan.py')
         print("flame-fitting terminée.")
         print("récupération des markers 3D sur le model FLAME fitter")
-        vertices, triangles = read3D.read("output/fit_scan_result.obj")
+        mesh = trimesh.load_mesh("output/fit_scan_result.obj")
+        vertices, triangles = mesh.vertices, mesh.faces
         points = util.read_all_index_opti_tri(vertices, triangles, markers)
         print("transformation des marker 3D en index correspondant aux masque redimensionner")
-        vertices, triangles = read3D.read('output/scan_scaled.obj')
+        mesh = trimesh.load_mesh('output/scan_scaled.obj')
+        vertices, triangles = mesh.vertices, mesh.faces
         indexs = util.get_index_for_match_points(vertices, triangles, points)
         print("Interprétation des index sur le masque de départ")
         os.chdir('..')

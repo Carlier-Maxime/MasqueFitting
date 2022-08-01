@@ -1,19 +1,23 @@
+import logging as log
 import os
 import sys
 
 import cv2
-import logging as log
 import numpy as np
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import DirectionalLight, ConfigVariableString, CollisionTraverser, \
+from panda3d.core import DirectionalLight, CollisionTraverser, \
     CollisionHandlerQueue, CollisionNode, CollisionRay, GeomNode, loadPrcFile
 
 import util
 
 
 class MyApp(ShowBase):
-
-    def __init__(self, file_path, pyv):
+    def __init__(self, file_path: str, pyv: str = ""):
+        """
+        Args:
+            file_path (str): path file for 3D object
+            pyv (str): python version
+        """
         ShowBase.__init__(self)
         print("préparation de la scéne")
         self.file_path = file_path
@@ -41,21 +45,28 @@ class MyApp(ShowBase):
         self.pickerNode.addSolid(self.pickerRay)
         self.picker.addCollider(self.pickerNP, self.pq)
 
-        taskMgr.doMethodLater(0, self.screenshotTask, 'screenshot')
+        taskMgr.doMethodLater(0, self.MainTask, 'MainTask')
 
-    def screenshotTask(self, task):
+    def MainTask(self, task):
+        """
+        screenshot scene,
+        detect 3D landmark,
+        save landmark.
+        Args:
+            task: task object
+        """
         print("screenshot de l'aperçu de la scene")
         if not os.path.isdir("tmp"):
             os.mkdir("tmp")
         base.screenshot("tmp/screen.png", False)
 
-        print("Détection des landmark 2d..")
-        lmk = self.get_landmark_2d()
+        print("Détection des landmark 3d..")
+        lmk = self.get_landmark_3d()
         if lmk is None:
             if self.dlight.color != (0.2, 0.2, 0.2, 1.0):
                 self.dlight.color = (0.2, 0.2, 0.2, 1.0)
                 log.info("landmarks introuvable, changement d'éclairage et nouvelle tentative")
-                taskMgr.doMethodLater(0, self.screenshotTask, 'screenshot')
+                taskMgr.doMethodLater(0, self.MainTask, 'MainTask')
             else:
                 log.error("les landmarks n'arrivent pas à être trouver.")
                 exit(1)
@@ -66,6 +77,13 @@ class MyApp(ShowBase):
         return task.done
 
     def pixel_to_3d_point(self, x, y):
+        """
+        Transform pixel coordinate on the window into the 3D point
+        Args:
+            x (int): position X in the window
+            y (int): position Y in the window
+        Returns: 3D Point
+        """
         # set the position of the ray based on the mouse position
         halfX = base.win.getXSize() / 2
         halfY = base.win.getYSize() / 2
@@ -82,6 +100,10 @@ class MyApp(ShowBase):
         return None
 
     def read2d_landmark(self):
+        """
+        Read the 3D landmarks in the picture
+        Returns: 2D landmarks
+        """
         img = cv2.imread("tmp/result.png")
         rows, cols = img.shape[:2]
         pts = []
@@ -107,7 +129,12 @@ class MyApp(ShowBase):
                             return pts
         return pts
 
-    def get_landmark_2d(self):
+    def get_landmark_3d(self):
+        """
+        Obtain the 3D landmarks, the method used :
+        detect 2D landmark, transform 2D to 3D.
+        Returns: 3D landmarks
+        """
         os.chdir("lmk-detection")
         os.system(f"python{self.pyv} lmk_detection.py ../tmp/screen.png")
         os.chdir("..")
