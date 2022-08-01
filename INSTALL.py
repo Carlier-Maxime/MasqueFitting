@@ -12,7 +12,8 @@ if platform == "win32":
     os.system("pip install numpy==1.22 --target lmk-detection/numpy_1.22")
     os.system("pip install -U numpy")
     print("Download boost")
-    url = "https://boostorg.jfrog.io/artifactory/main/release/1.79.0/source/boost_1_79_0.zip"
+    boost_version = "1.79.0"
+    url = f"https://boostorg.jfrog.io/artifactory/main/release/{boost_version}/source/boost_{boost_version.replace('.','_')}.zip"
     resp = requests.get(url, stream=True)
     total = int(resp.headers.get('content-length', 0))
     fname = "boost.zip"
@@ -23,7 +24,7 @@ if platform == "win32":
     print("Unzip boost")
     shutil.unpack_archive("boost.zip")
     os.remove("boost.zip")
-    os.chdir("boost")
+    os.chdir(f"boost_{boost_version.replace('.','_')}")
     print("Install boost")
     os.system("./bootstrap")
     os.system("./b2")
