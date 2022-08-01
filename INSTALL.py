@@ -13,10 +13,13 @@ if platform == "win32":
     os.system("pip install -U numpy")
     print("Download boost")
     url = "https://boostorg.jfrog.io/artifactory/main/release/1.79.0/source/boost_1_79_0.zip"
-    response = requests.get(url, stream=True)
-    with open("boost.zip", "wb") as handle:
-        for data in tqdm(response.iter_content()):
-            handle.write(data)
+    resp = requests.get(url, stream=True)
+    total = int(resp.headers.get('content-length', 0))
+    fname = "boost.zip"
+    with open(fname, "wb") as file, tqdm(desc=fname, total=total, unit='iB', unit_scale=True, unit_divisor=1024) as bar:
+        for data in resp.iter_content(chunk_size=1024):
+            size = file.write(data)
+            bar.update(size)
     print("Unzip boost")
     shutil.unpack_archive("boost.zip")
     os.remove("boost.zip")
@@ -26,10 +29,13 @@ if platform == "win32":
     os.system("./b2")
     print("Download psbody-mesh")
     url = "https://github.com/johnbanq/mesh/archive/refs/heads/fix/MSVC_compilation.zip"
-    response = requests.get(url, stream=True)
-    with open("psbody-mesh.zip", "wb") as handle:
-        for data in tqdm(response.iter_content()):
-            handle.write(data)
+    resp = requests.get(url, stream=True)
+    total = int(resp.headers.get('content-length', 0))
+    fname = "psbody-mesh.zip"
+    with open(fname, "wb") as file, tqdm(desc=fname, total=total, unit='iB', unit_scale=True, unit_divisor=1024) as bar:
+        for data in resp.iter_content(chunk_size=1024):
+            size = file.write(data)
+            bar.update(size)
     print("Unzip psbody-mesh")
     shutil.unpack_archive("psbody-mesh.zip")
     os.remove("psbody-mesh.zip")
