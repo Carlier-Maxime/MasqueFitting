@@ -29,6 +29,8 @@ def run():
     nbNoLmk = 0
     if not os.path.exists('output'):
         os.mkdir('output')
+    if not os.path.exists('tmp'):
+        os.mkdir('tmp')
     in_input = False
 
     print("Parcourir les fichier du dossier input..")
