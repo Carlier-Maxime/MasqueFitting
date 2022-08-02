@@ -1,7 +1,5 @@
 import sys
 import warnings
-
-sys.path.insert(1, "numpy_1.22")
 import face_alignment
 import numpy as np
 from skimage import io

@@ -8,9 +8,15 @@ if platform == "win32":
     print("Install for Windows..")
     print("Install python package")
     os.system("python -m venv venv")
+    os.system("venv/Scripts/activate")
     os.system('pip install -r requirements_windows.txt')
-    os.system("pip install numpy==1.22 --target lmk-detection/numpy_1.22")
     os.system("pip install -U numpy")
+    with open("venv/Lib/site-packages/numba/__init__.py", "r") as f:
+        lines = f.readlines()
+    with open("venv/Lib/site-packages/numba/__init__.py", "w") as f:
+        for number, line in enumerate(lines):
+            if number not in [144, 145]:
+                f.write(line)
     print("Download boost")
     boost_version = "1.79.0"
     url = f"https://boostorg.jfrog.io/artifactory/main/release/{boost_version}/source/boost_{boost_version.replace('.','_')}.zip"
@@ -52,6 +58,11 @@ if platform == "win32":
     print("Install eigen")
     os.system("python setup.py build_ext --inplace")
     os.chdir('../../../..')
+    print("Fix CRLF / LF problem")
+    os.rename("flame-fitting/models/flame_static_embedding.pkl",
+              "flame-fitting/models/flame_static_embedding_CRLF.pkl")
+    os.rename("flame-fitting/models/flame_static_embedding_LF.pkl",
+              "flame-fitting/models/flame_static_embedding.pkl")
     print("Install finish.")
 
 else:
