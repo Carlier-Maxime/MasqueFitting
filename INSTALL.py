@@ -8,9 +8,10 @@ if platform == "win32":
     print("Install for Windows..")
     print("Install python package")
     os.system("python -m venv venv")
-    os.system("venv/Scripts/activate")
-    os.system('pip install -r requirements_windows.txt')
-    os.system("pip install -U numpy")
+    pip = os.path.abspath("venv/Scripts/pip")
+    python = os.path.abspath("venv/Scripts/python")
+    os.system(f'{pip} install -r requirements_windows.txt')
+    os.system(f"{pip} install -U numpy")
     with open("venv/Lib/site-packages/numba/__init__.py", "r") as f:
         lines = f.readlines()
     with open("venv/Lib/site-packages/numba/__init__.py", "w") as f:
@@ -51,12 +52,12 @@ if platform == "win32":
     os.rename("mesh-fix-MSVC_compilation", "psbody-mesh")
     os.chdir("psbody-mesh")
     print("Install psbody-mesh")
-    os.system("pip install --no-deps --install-option=\"--boost-location=../boost\" --verbose --no-cache-dir .")
+    os.system(f"{pip} install --no-deps --install-option=\"--boost-location=../boost\" --verbose --no-cache-dir .")
     print("Download eigen")
     os.chdir('../flame-fitting/sbody/alignment/mesh_distance')
     os.system('git clone https://gitlab.com/libeigen/eigen.git')
     print("Install eigen")
-    os.system("python setup.py build_ext --inplace")
+    os.system(f"{python} setup.py build_ext --inplace")
     os.chdir('../../../..')
     print("Fix CRLF / LF problem")
     os.rename("flame-fitting/models/flame_static_embedding.pkl",
