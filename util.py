@@ -8,7 +8,7 @@ import numpy as np
 import logging as log
 import trimesh
 
-sys.path.append('flame-fitting')
+sys.path.append('flameFitting')
 from fitting.landmarks import load_picked_points
 
 
@@ -204,29 +204,29 @@ def change_markers(scan_path: str, pts_path: str, lmk_path: str = None, pyv: str
         lmk_path = f"tmp/{base_name}.pp"
         print("génération des landmarks, terminée.")
 
-    print("Préparation de flame-fitting")
+    print("Préparation de flameFitting")
     if os.path.exists(lmk_path):
         array = load_picked_points(lmk_path)
-        np.save("flame-fitting/data/scan_lmks.npy", array)
+        np.save("flameFitting/data/scan_lmks.npy", array)
     else:
         log.warning("Le scan 3D '" + scan_path + " n'as pas de fichier landmark ! (le nom de ce fichier doit-être "
                     + base_name + ".txt ou " + base_name + ".pp)")
-    shutil.copyfile(f"tmp/{base_name}.obj", "flame-fitting/data/scan.obj")
-    print("lancement de flame-fitting")
-    os.chdir("flame-fitting")
+    shutil.copyfile(f"tmp/{base_name}.obj", "flameFitting/data/scan.obj")
+    print("lancement de flameFitting")
+    os.chdir("flameFitting")
     os.system(f'python{pyv} fit_scan.py')
     os.chdir("..")
-    print("flame-fitting terminée.")
+    print("flameFitting terminée.")
     print("transformation des points en index")
     mesh = trimesh.load_mesh(f"tmp/{base_name}.obj")
     vertices, triangles = mesh.vertices, mesh.faces
     indexs = get_index_for_match_points(vertices, triangles, points, verbose=True)
     print("utilisation des index obtenue sur le masque redimenssionner")
-    mesh = trimesh.load_mesh('flame-fitting/output/scan_scaled.obj')
+    mesh = trimesh.load_mesh('flameFitting/output/scan_scaled.obj')
     vertices, triangles = mesh.vertices, mesh.faces
     points = read_all_index_opti_tri(vertices, triangles, indexs)
     print("transformation des points en index pour le visage FLAME")
-    mesh = trimesh.load_mesh("flame-fitting/output/fit_scan_result.obj")
+    mesh = trimesh.load_mesh("flameFitting/output/fit_scan_result.obj")
     vertices, triangles = mesh.vertices, mesh.faces
     indexs = get_index_for_match_points(vertices, triangles, points)
     print("Enregistrement des indexs de marker obtenue")

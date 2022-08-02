@@ -54,24 +54,24 @@ if platform == "win32":
     print("Install psbody-mesh")
     os.system(f"{pip} install --no-deps --install-option=\"--boost-location=../boost\" --verbose --no-cache-dir .")
     print("Download eigen")
-    os.chdir('../flame-fitting/sbody/alignment/mesh_distance')
+    os.chdir('../flameFitting/sbody/alignment/mesh_distance')
     os.system('git clone https://gitlab.com/libeigen/eigen.git')
     print("Install eigen")
     os.system(f"{python} setup.py build_ext --inplace")
     os.chdir('../../../..')
     print("Fix CRLF / LF problem")
-    os.rename("flame-fitting/models/flame_static_embedding.pkl",
-              "flame-fitting/models/flame_static_embedding_CRLF.pkl")
-    os.rename("flame-fitting/models/flame_static_embedding_LF.pkl",
-              "flame-fitting/models/flame_static_embedding.pkl")
+    os.rename("flameFitting/models/flame_static_embedding.pkl",
+              "flameFitting/models/flame_static_embedding_CRLF.pkl")
+    os.rename("flameFitting/models/flame_static_embedding_LF.pkl",
+              "flameFitting/models/flame_static_embedding.pkl")
     print("Install finish.")
 
 else:
     os.system('python -m venv venv')
     os.system('pip install -r requirements.txt')
-    os.system("pip install numpy==1.22 --target lmk-detection/numpy_1.22")
+    os.system("pip install numpy==1.22 --target lmkDetection/numpy_1.22")
     os.system("pip install -U numpy")
-    os.chdir('flame-fitting/sbody/alignment/mesh_distance')
+    os.chdir('flameFitting/sbody/alignment/mesh_distance')
     os.system('git clone https://gitlab.com/libeigen/eigen.git')
     os.system('make')
     os.chdir('../../../..')

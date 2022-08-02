@@ -24,14 +24,6 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '--python_version',
-    type=str,
-    default="",
-    help="version de python utiliser si 3.9 "
-         "utilise python3.9 lors de l'appel d'autre programme python au lieu d'utiliser python"
-)
-
-parser.add_argument(
     '--blender_path',
     type=str,
     default="./blender",

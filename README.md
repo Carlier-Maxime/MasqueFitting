@@ -76,7 +76,7 @@ Il lui faut un ou plusieur scan 3D au format OBJ ou STL. <br>
 Si vous avez un problème lors de la détection de landmakrs, <br>
 ajouter pour chaque scan ayant ce problème un fichier contenant les coordonnées des 51 landmark dans l'ordre au format txt ou pp. <br>
 Voici une aperçu de là où il faut placer ces 51 landmark et de l'ordre (la précision n'est pas très importante) : <br>
-![Image montrant les position des 51 landmark](./flame-fitting/data/landmarks_51_annotated.png) <br>
+![Image montrant les position des 51 landmark](flameFitting/data/landmarks_51_annotated.png) <br>
 (Image issue de [flame-fitting](https://github.com/Rubikplayer/flame-fitting)) <br>
 Une fois tous les fichier demander obtenue placer les dans le dossier input.
 

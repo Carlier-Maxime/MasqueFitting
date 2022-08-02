@@ -1,26 +1,24 @@
+import logging as log
 import os
 import shutil
-import sys
+
 import numpy as np
 import trimesh
-import logging as log
 
+import get_landmarks
 import util
-
 from config import get_config
-
-sys.path.append('flame-fitting')
-from fitting.landmarks import load_picked_points
+from flameFitting import fit_scan
+from flameFitting.fitting.landmarks import load_picked_points
 
 
 def run():
     print("chargement de la configuration")
     config = get_config()
-    pyv = config.python_version
     if config.output_format not in ['npy', 'txt', 'pp', 'obj', 'stl']:
         log.error("Le format du fichier de sortie est inconnue ou non pris en charge.")
         exit(1)
-    if not os.path.exists('flame-fitting/models/generic_model.pkl'):
+    if not os.path.exists('flameFitting/models/generic_model.pkl'):
         log.error("Télécharger le flame model ! (plus d'information dans README.md)")
         exit(1)
     markers = np.load("markers.npy")
@@ -54,13 +52,13 @@ def run():
         if config.auto_lmk:
             print("Génération automatiques des 51 landmarks..")
             os.chdir("..")
-            os.system(f"python{pyv} get_landmarks.py tmp/{base_name}.obj {pyv}")
+            get_landmarks.run(f"tmp/{base_name}.obj")
             os.chdir('tmp')
             print("génération des landmarks, terminée.")
-        print("Préparation de flame-fitting")
+        print("Préparation de flameFitting")
         if os.path.exists(base_name + '.pp'):
             array = load_picked_points(base_name + ".pp")
-            np.save("../flame-fitting/data/scan_lmks.npy", array)
+            np.save("../flameFitting/data/scan_lmks.npy", array)
         elif os.path.exists(base_name + '.txt'):
             array = []
             with open(base_name+".txt", "r") as f:
@@ -70,19 +68,19 @@ def run():
                         break
                     line = line.split(',')
                     array.append([float(line[0]), float(line[1]), float(line[2])])
-            np.save("../flame-fitting/data/scan_lmks.npy", array)
+            np.save("../flameFitting/data/scan_lmks.npy", array)
         else:
             nbNoLmk += 1
             log.warning("Le scan 3D '" + file + " n'as pas de fichier landmark ! (le nom de ce fichier doit-être "
                   + base_name + ".txt ou " + base_name + ".pp)")
             continue
         os.chdir("../tmp")
-        shutil.copyfile(base_name + ".obj", "../flame-fitting/data/scan.obj")
-        os.chdir('../flame-fitting')
+        shutil.copyfile(base_name + ".obj", "../flameFitting/data/scan.obj")
+        os.chdir('../flameFitting')
         in_input = False
-        print("lancement de flame-fitting")
-        os.system(f'python{pyv} fit_scan.py')
-        print("flame-fitting terminée.")
+        print("lancement de flameFitting")
+        fit_scan.run_fitting()
+        print("flameFitting terminée.")
         print("récupération des markers 3D sur le model FLAME fitter")
         mesh = trimesh.load_mesh("output/fit_scan_result.obj")
         vertices, triangles = mesh.vertices, mesh.faces

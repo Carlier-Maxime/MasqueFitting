@@ -4,7 +4,7 @@ input/
 output/
 __pycache__/
 tmp/
-lmk-detection/lmk.npy
+lmkDetection/lmk.npy
 /blender
 /boost
 /psbody-mesh

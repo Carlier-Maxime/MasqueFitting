@@ -7,21 +7,20 @@ import numpy as np
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import DirectionalLight, CollisionTraverser, \
     CollisionHandlerQueue, CollisionNode, CollisionRay, GeomNode, loadPrcFile
+from lmkDetection import lmk_detection
 
 import util
 
 
 class MyApp(ShowBase):
-    def __init__(self, file_path: str, pyv: str = ""):
+    def __init__(self, file_path: str):
         """
         Args:
             file_path (str): path file for 3D object
-            pyv (str): python version
         """
         ShowBase.__init__(self)
         print("préparation de la scéne")
         self.file_path = file_path
-        self.pyv = pyv
         model = self.loader.load_model(file_path)
         model.reparentTo(render)
         self.dlight = DirectionalLight('my dlight')
@@ -135,10 +134,10 @@ class MyApp(ShowBase):
         detect 2D landmark, transform 2D to 3D.
         Returns: 3D landmarks
         """
-        os.chdir("lmk-detection")
-        os.system(f"python{self.pyv} lmk_detection.py ../tmp/screen.png")
+        os.chdir("lmkDetection")
+        lmk_detection.run("../tmp/screen.png")
         os.chdir("..")
-        preds = np.load("lmk-detection/lmk.npy")
+        preds = np.load("lmkDetection/lmk.npy")
         if len(preds) == 0:
             return None
         pts = []
@@ -167,11 +166,16 @@ class MyApp(ShowBase):
         return pts[17:]
 
 
-if __name__ == '__main__':
+def run(file_path):
     print("Configuration de panda3d")
     loadPrcFile("etc/Config.prc")
-    args = sys.argv[1:]
-    if len(args)<2:
-        args.append("")
-    app = MyApp(str(args[0]), str(args[1]))
+    app = MyApp(file_path)
     app.run()
+
+
+if __name__ == '__main__':
+    args = sys.argv[1:]
+    if len(args) < 1:
+        print("missing arguments")
+        exit(1)
+    run(str(args[0]))
