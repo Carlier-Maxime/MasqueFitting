@@ -4,3 +4,6 @@ git+https://github.com/MPI-IS/mesh#egg=psbody-mesh
 scikit-image
 trimesh
 panda3d
+zmq
+pyopengl
+pyyaml

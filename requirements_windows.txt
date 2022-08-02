@@ -3,3 +3,6 @@ face_alignment
 scikit-image
 trimesh
 panda3d
+zmq
+pyopengl
+pyyaml
