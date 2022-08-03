@@ -1,6 +1,7 @@
 import logging as log
 import os
 import shutil
+import sys
 
 import numpy as np
 import trimesh
@@ -8,9 +9,7 @@ import trimesh
 import get_landmarks
 import util
 from config import get_config
-from flameFitting import fit_scan
 from flameFitting.fitting.landmarks import load_picked_points
-
 
 def run():
     print("chargement de la configuration")
@@ -79,6 +78,8 @@ def run():
         os.chdir('../flameFitting')
         in_input = False
         print("lancement de flameFitting")
+        sys.path.append('flameFitting')
+        import fit_scan
         fit_scan.run_fitting()
         print("flameFitting terminée.")
         print("récupération des markers 3D sur le model FLAME fitter")
