@@ -1,5 +1,5 @@
 face_alignment
--r flame-fitting/requirements.txt
+-r flameFitting/requirements.txt
 git+https://github.com/MPI-IS/mesh#egg=psbody-mesh
 scikit-image
 trimesh
