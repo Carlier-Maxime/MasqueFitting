@@ -75,11 +75,12 @@ def run():
             continue
         os.chdir("../tmp")
         shutil.copyfile(base_name + ".obj", "../flameFitting/data/scan.obj")
-        os.chdir('../flameFitting')
+        os.chdir('..')
+        sys.path.append(os.path.abspath('flameFitting'))
+        os.chdir('flameFitting')
         in_input = False
-        print("lancement de flameFitting")
-        sys.path.append('flameFitting')
         import fit_scan
+        print("lancement de flameFitting")
         fit_scan.run_fitting()
         print("flameFitting terminée.")
         print("récupération des markers 3D sur le model FLAME fitter")
