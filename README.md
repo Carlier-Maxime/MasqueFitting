@@ -26,32 +26,33 @@ Cloner simplement le projet à l'aide de git dans le répertoire de votre choix 
 git clone https://github.com/Carlier-Maxime/MasqueFitting
 ```
 
-### Model
-
-Télécharger le model flame (celui de 2020 de préférence) [ici](https://flame.is.tue.mpg.de/)
-et dézipper l'archive obtenue puis placer son contenu (les 3 fichier model) dans flame-fitting/models.
-
 ### Dépendance
 
-Ouvrez un terminal ou un invite de commande et lancer le fichier d'installation (ne fonctionne pas sur Windows) :
+Ouvrez un terminal ou un invite de commande et lancer le fichier d'installation :
 ```
 python INSTALL.py
 ```
 
-Si vous voulez installer manuellement les dépendance ou que vous êtes sur Windows, voici quelques information : <br>
+Si vous voulez installer manuellement les dépendance, voici quelques information : <br>
 
 - la liste des dépendance requise se trouve dans les fichier requirements.txt (sauf exception)
 - pour psbody-mesh il faudra probalement installer [boost](https://www.boost.org/)
 - Pour installer psbody-mesh sous Windows prener la version présent sur ce [dépôt](https://github.com/johnbanq/mesh/tree/fix/MSVC_compilation)
-- la plupart des dépendance s'installe avec ```pip install <name_package>```
-- lmk-detection néssecite une version de numpy antèrieur pour l'installer correctement éxécuter :<br>
-```pip install numpy==1.22 --target lmk-detection/numpy_1.22```
+- la plupart des dépendance s'installe avec ```pip install <name_package>``` ou éxécuter ```pip install -r requirements.txt``` qui installera tous les packages requis. sur Windows éxécuter plutôt ```pip install -r requirements_windows.txt```
+- lmk-detection utilse numba qui demande une version de numpy antèrieur, Or pour l'utilisation faite il fonctionne avec une version supérieur. <br>
+Du coup aller dans le dossier numba (venv/Lib/site-packages/numba sur Windows si installer dans un virtualenv python), dans le fichier \_\_init\_\_.py et supprimer les 2 ligne indiquant la version minimal de numpy (L145-L146).
 - par défaut vous devez installer eigen dans flame-fitting/sbody/alignment/mesh-distance. <br>
 Pour plus d'information liser le readme de flame-fitting
-- pour installer eigen sous windows au lieu de éxécuter ```make``` éxécuter
-```python setup.py build_ext --inplace```
+- pour installer eigen sous windows au lieu de éxécuter ```make``` éxécuter ```python setup.py build_ext --inplace```
 
 en éspérant que ces information pour l'installation manuelle vous auront était utile.
+Vous pouvez aussi regarder directement dans le fichier INSTALL.py pour mieux voir les étapes.
+
+### Model
+
+Télécharger le model flame (celui de 2020 de préférence) [ici](https://flame.is.tue.mpg.de/)
+et dézipper l'archive obtenue puis placer son contenu (les 3 fichier model) dans flame-fitting/models.
+(Vous pouvez vous le faire en même tant que l'installation.)
 
 ### Addon
 
@@ -94,15 +95,11 @@ Plusieur paramètre sont disponnible en voici la liste (vous pouvez modifier / v
 - ```--output_format``` : format du fichier de sortie.
 - ```--auto_lmk``` : définie si les 51 landmarks sont générés de manière automatique ou non.
 - ```--radius``` : rayon des spheres utilisée pour généré les trou des masque lors de l'enregistrement dans le format stl ou obj
-- ```--python_version``` : version de python utilisée, utile uniquement si la commande ```python``` n'as pas la bonne version. Et lance à la place ```python<python_version>```
 - ```--blender_path``` : chemin du dossier contenant [blender](https://www.blender.org/). (inutile de changer si installer à l'endroit par défaut proposer par l'installateur [blender](https://www.blender.org/))
 
-Voici quelques exemples d'éxécution avec paramètre :
+Voici un exemple d'éxécution avec paramètre :
 ```
 python main.py --output_format=stl --auto_lmk=True --blender_path="E:\\Program Files\\Blender Foundation\\Blender 3.2"
-```
-```
-python main.py --output_format=obj --radius=5 --python_version=3.9
 ```
 
 ### récupération des données de sortie
@@ -116,8 +113,7 @@ Le fichier à le même nom que le masque d'entrée mais avec l'extension corresp
 Liste des différent format prise en charge :
 - **npy** : fichier numpy pouvant être lu avec python grâce à numpy.
 - **txt** : fichier texte pouvant être lu par Rhinoceros 3D ou dans un éditeur de texte ou un tableur (équivaut à un fichier .csv).
-- **pp** : fichier picked points pouvant être lu par MeshLab, <br> 
-  il se base sur une structure HTML vous pouvez donc l'ouvrir avec un éditeur de texte.
+- **pp** : fichier picked points pouvant être lu par MeshLab, il se base sur une structure HTML vous pouvez donc l'ouvrir avec un éditeur de texte.
 - **obj** : fichier wavefront (objet 3D),  contient le masque de départ trouer à partir des points des marker (**nécessite [blender](https://www.blender.org/)**)
 - **stl** : fichier stéréolithographie (objet 3D) contient le masque de départ trouer à partir des points des marker (**nécessite [blender](https://www.blender.org/)**)
   
