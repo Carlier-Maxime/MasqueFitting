@@ -60,11 +60,6 @@ if platform == "win32":
     print("Install eigen")
     os.system(f"{python} setup.py build_ext --inplace")
     os.chdir('../../../..')
-    print("Fix CRLF / LF problem")
-    os.rename("flameFitting/models/flame_static_embedding.pkl",
-              "flameFitting/models/flame_static_embedding_CRLF.pkl")
-    os.rename("flameFitting/models/flame_static_embedding_LF.pkl",
-              "flameFitting/models/flame_static_embedding.pkl")
     print("Install finish.")
 
 else:
