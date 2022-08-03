@@ -12,13 +12,13 @@ if platform == "win32":
     python = os.path.abspath("venv/Scripts/python")
     os.system(f'{python} -m pip install --upgrade pip')
     os.system(f'{pip} install -r requirements_windows.txt')
-    os.system(f"{pip} install -U numpy")
     with open("venv/Lib/site-packages/numba/__init__.py", "r") as f:
         lines = f.readlines()
     with open("venv/Lib/site-packages/numba/__init__.py", "w") as f:
         for number, line in enumerate(lines):
             if number not in [144, 145]:
                 f.write(line)
+    os.system(f"{pip} install -U numpy")
     print("Download boost")
     boost_version = "1.79.0"
     url = f"https://boostorg.jfrog.io/artifactory/main/release/{boost_version}/source/boost_{boost_version.replace('.','_')}.zip"
