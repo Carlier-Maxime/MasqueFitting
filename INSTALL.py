@@ -10,6 +10,7 @@ if platform == "win32":
     os.system("python -m venv venv")
     pip = os.path.abspath("venv/Scripts/pip")
     python = os.path.abspath("venv/Scripts/python")
+    os.system(f'{python} -m pip install --upgrade pip')
     os.system(f'{pip} install -r requirements_windows.txt')
     os.system(f"{pip} install -U numpy")
     with open("venv/Lib/site-packages/numba/__init__.py", "r") as f:
