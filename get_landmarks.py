@@ -72,7 +72,8 @@ class MyApp(ShowBase):
             return task.done
         print("Sauvegarde des landmarks")
         util.save_points(lmk, self.file_path.split('.obj')[0], "pp")
-        self.finalizeExit()
+        sys.tracebacklimit = 0
+        raise KeyboardInterrupt("for stop panda3d not all prgm")
         return task.done
 
     def pixel_to_3d_point(self, x, y):
@@ -87,7 +88,7 @@ class MyApp(ShowBase):
         halfX = base.win.getXSize() / 2
         halfY = base.win.getYSize() / 2
         x = (x - halfX) / halfX
-        y = ((y - halfY) / halfY)*-1
+        y = ((y - halfY) / halfY) * -1
         self.pickerRay.setFromLens(base.camNode, x, y)
         self.picker.traverse(render)
         # if we have hit something sort the hits so that the closest is first and highlight the node
@@ -108,7 +109,7 @@ class MyApp(ShowBase):
         pts = []
         indcount = []
         for i in range(rows):
-            for j in range(200, cols-250):
+            for j in range(200, cols - 250):
                 p = img[i, j]
                 if p[2] == 255 and p[0] == 0 and p[1] == 0:  # red beacause opencv is BGR not RGB !
                     if [i, j] not in indcount:
@@ -122,7 +123,7 @@ class MyApp(ShowBase):
                                 y += 1
                             if p3d is not None:
                                 pts.append(p3d)
-                        for ind in [[i, j], [i+1, j-1], [i+1, j+1], [i+2, j]]:
+                        for ind in [[i, j], [i + 1, j - 1], [i + 1, j + 1], [i + 2, j]]:
                             indcount.append(ind)
                         if len(pts) >= 51:
                             return pts
@@ -165,12 +166,16 @@ class MyApp(ShowBase):
                     log.error(f'Pas de point 3D pour le pixel {x}, {y} !')
         return pts[17:]
 
+    def finalizeExit(self):
+        return
+
 
 def run(file_path):
     print("Configuration de panda3d")
     loadPrcFile("etc/Config.prc")
     app = MyApp(file_path)
     app.run()
+    sys.tracebacklimit = 1000
 
 
 if __name__ == '__main__':
