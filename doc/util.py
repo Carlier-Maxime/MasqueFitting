@@ -1,6 +1,6 @@
 def gen_packages_md():
     lines = []
-    color = ['red', 'brown', 'orange', 'bisque', 'yellow', 'gold', 'green', 'aquamarine', 'steelblue', 'teal', 'skyblue', 'blue', 'blueviolet']
+    color = ['red', 'brown', 'orange', 'bisque', 'yellow', 'gold', 'green', 'olivedrab', 'limegreen', 'aquamarine', 'steelblue', 'teal', 'skyblue', 'blue', 'blueviolet']
     with open("packages.txt", "r", encoding="UTF-16LE") as f:
         n = 0
         while f.readable():
