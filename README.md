@@ -128,7 +128,7 @@ Liste des resources utilisée (non exaustive) :
 
 ## Version Packages
 
-Version des packages utilisée lors du développement :
+Version des packages utilisée lors du développement (Vous pouvez aussi retrouver ses informations dans packages.txt dans le dossier doc) :
 
 ![chumpy : 0.70](https://img.shields.io/badge/chumpy-0.70-red)
 ![colorama : 0.4.5](https://img.shields.io/badge/colorama-0.4.5-brown)
