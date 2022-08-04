@@ -88,6 +88,10 @@ to do this, open a terminal / command prompt and run:
 ```
 python main.py
 ```
+If your have error of type : ```module not found```
+Your python venv is not enable, for enable execute ```./venv/bin/activate``` in linux
+or ```C:/.../venv/Scripts/activate``` (absolute path) in Windows. <br>
+Or execute via python file in venv for example ```./venv/bin/python main.py```
 
 ### options
 
