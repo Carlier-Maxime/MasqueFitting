@@ -12,13 +12,13 @@ from config import get_config
 from flameFitting.fitting.landmarks import load_picked_points
 
 def run():
-    print("chargement de la configuration")
+    print("Load config")
     config = get_config()
     if config.output_format not in ['npy', 'txt', 'pp', 'obj', 'stl']:
-        log.error("Le format du fichier de sortie est inconnue ou non pris en charge.")
+        log.error("The format of output file is unknown or not supported.")
         exit(1)
     if not os.path.exists('flameFitting/models/generic_model.pkl'):
-        log.error("Télécharger le flame model ! (plus d'information dans README.md)")
+        log.error("Download the flame model ! (More information in README.md)")
         exit(1)
     markers = np.load("markers.npy")
     files = next(os.walk('input'), (None, None, []))[2]
@@ -30,7 +30,7 @@ def run():
         os.mkdir('tmp')
     in_input = False
 
-    print("Parcourir les fichier du dossier input..")
+    print("Browse file of input folder..")
     for file in files:
         if not in_input:
             os.chdir('input')
@@ -38,23 +38,23 @@ def run():
         if not file.endswith('.obj') and not file.endswith(".stl"):
             continue
         nbScan += 1
-        print(f"traitement de {file} (scan N°{nbScan})")
+        print(f"Treatment of {file} (scan N°{nbScan})")
         base_name = file.split('.obj')[0].split(".stl")[0]
 
         # generate normal, remove color and texture, save to obj format
-        print("Préparation du fichier 3D")
+        print("Prepare 3D file")
         mesh = trimesh.load_mesh(file)
         normals = mesh.vertex_normals
         with open("../tmp/" + base_name + ".obj", "w") as f:
             f.write(trimesh.exchange.obj.export_obj(mesh, True, False, False))
 
         if config.auto_lmk:
-            print("Génération automatiques des 51 landmarks..")
+            print("Auto generate the 51 landmarks..")
             os.chdir("..")
             get_landmarks.run(f"tmp/{base_name}.obj")
             os.chdir('tmp')
-            print("génération des landmarks, terminée.")
-        print("Préparation de flameFitting")
+            print("Generation landmarks, finish.")
+        print("Prepare flameFitting")
         if os.path.exists(base_name + '.pp'):
             array = load_picked_points(base_name + ".pp")
             np.save("../flameFitting/data/scan_lmks.npy", array)
@@ -70,8 +70,7 @@ def run():
             np.save("../flameFitting/data/scan_lmks.npy", array)
         else:
             nbNoLmk += 1
-            log.warning("Le scan 3D '" + file + " n'as pas de fichier landmark ! (le nom de ce fichier doit-être "
-                  + base_name + ".txt ou " + base_name + ".pp)")
+            log.warning(f"The 3D scan '{file}' not landmark file ! (the name of file must be {base_name}.txt or {base_name}.pp)")
             continue
         os.chdir("../tmp")
         shutil.copyfile(base_name + ".obj", "../flameFitting/data/scan.obj")
@@ -80,31 +79,31 @@ def run():
         os.chdir('flameFitting')
         in_input = False
         import fit_scan
-        print("lancement de flameFitting")
+        print("Start flameFitting")
         fit_scan.run_fitting()
-        print("flameFitting terminée.")
-        print("récupération des markers 3D sur le model FLAME fitter")
+        print("flameFitting finish.")
+        print("Obtain 3D markers of model FLAME fitter")
         mesh = trimesh.load_mesh("output/fit_scan_result.obj")
         vertices, triangles = mesh.vertices, mesh.faces
         points = util.read_all_index_opti_tri(vertices, triangles, markers)
-        print("transformation des marker 3D en index correspondant aux masque redimensionner")
+        print("Transform 3D marker in index correspondant of mask resize")
         mesh = trimesh.load_mesh('output/scan_scaled.obj')
         vertices, triangles = mesh.vertices, mesh.faces
         indexs = util.get_index_for_match_points(vertices, triangles, points)
-        print("Interprétation des index sur le masque de départ")
+        print("Interpret index on start mask")
         os.chdir('..')
         mesh = trimesh.load_mesh("tmp/" + base_name + ".obj")
         vertices, triangles = mesh.vertices, mesh.faces
         points = util.read_all_index_opti_tri(vertices, triangles, indexs)
-        print("Enregistrement des marker 3D obtenue")
+        print("Save 3D marker obtained")
         util.save_points(points, "output/"+base_name, config.output_format, config.radius, mesh, config.blender_path)
     if nbScan == 0:
-        log.warning("Aucun scan fournie.")
+        log.warning("None scan given.")
     else:
         if nbScan != nbNoLmk:
-            print(nbScan - nbNoLmk, "scan sur", nbScan, "ont été traité avec succès !")
+            print(nbScan - nbNoLmk, "scan on", nbScan, "have been successfully treated !")
         if nbNoLmk > 0:
-            log.warning(f"{nbNoLmk} scan sur {nbScan} n'ont pas de fichier landmark ! Ils ont donc pas pu être traité.")
+            log.warning(f"{nbNoLmk} scan on {nbScan} not have landmark file ! They therefore could not be treated.")
 
 
 if __name__ == '__main__':

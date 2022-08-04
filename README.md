@@ -1,125 +1,125 @@
-# Masque Fitting
+# Fitting Mask
 
 ## Description
 
-Masque Fitting vous permet à partir d'un scan 3D d'obtenir les coordonnées des N marqueur correspondant aux points choisie sur le visage flame. (voir [Utilisation](#utilisation)) <br>
-Par défaut ils vous retournent ces 105 points : <br>
-![Représentation des 105 points](doc/105points.gif) <br>
-(Cette image est un gif d'illustration issue de [VisageGenerator](https://github.com/Carlier-Maxime/Visage-Generator)) <br>
-Bien entendu les coordonnées de ces 105 points sont adapté afin de collé aux masque fournie.
+Mask Fitting allows you from a 3D scan to obtain the coordinates of the N markers corresponding to the points chosen on the flame face. (see [Use](#use)) <br>
+By default they return you these 105 points: <br>
+![Representation of the 105 points](doc/105points.gif) <br>
+(This image is an illustration gif from [VisageGenerator](https://github.com/Carlier-Maxime/Visage-Generator)) <br>
+Of course the coordinates of these 105 points are adapted in order to stick to the mask provided.
 
 
 ## Installation
 
-### Pré-requis
+### Prerequisites
 
-Pour installer / éxécuter Masque Fitting vous devez avoir :
-- [python](https://www.python.org/) (pour éxécutez les fichier python dont ce programme)
-- [git](https://git-scm.com/) (pour récupérer les dépendance présant sur des dépot git ([psbody-mesh](https://github.com/MPI-IS/mesh) et [eigen](https://gitlab.com/libeigen/eigen)))
-- **g++** (pas tester si nécessaire, mais je suppose qu'il est nécessaire pour compiler [eigen](https://gitlab.com/libeigen/eigen))
-- [7zip](https://www.7-zip.org/download.html) ou tout autre gestionnaire de fichier zip afin de dézipper le fichier model
+To install / run Masque Fitting you must have:
+- [python](https://www.python.org/) (to run python files including this program)
+- [git](https://git-scm.com/) (to retrieve dependencies on git repositories ([psbody-mesh](https://github.com/MPI-IS/mesh) and [eigen ](https://gitlab.com/libeigen/eigen)))
+- **g++** (not test if needed, but I guess it's needed to compile [eigen](https://gitlab.com/libeigen/eigen))
+- [7zip](https://www.7-zip.org/download.html) or any other zip file manager to unzip the model file
 
-### Récupération
+### Recovery
 
-Cloner simplement le projet à l'aide de git dans le répertoire de votre choix :
+Simply clone the project using git in the directory of your choice:
 ```
 git clone https://github.com/Carlier-Maxime/MasqueFitting
 ```
 
-### Dépendance
+### Dependencies
 
-Ouvrez un terminal ou un invite de commande et lancer le fichier d'installation :
+Open a terminal or a command prompt and run the installation file:
 ```
 python INSTALL.py
 ```
 
-Si vous voulez installer manuellement les dépendance, voici quelques information : <br>
+If you want to install the dependencies manually, here is some information: <br>
 
-- la liste des dépendance requise se trouve dans les fichier requirements.txt (sauf exception)
-- pour psbody-mesh il faudra probalement installer [boost](https://www.boost.org/)
-- Pour installer psbody-mesh sous Windows prener la version présent sur ce [dépôt](https://github.com/johnbanq/mesh/tree/fix/MSVC_compilation)
-- la plupart des dépendance s'installe avec ```pip install <name_package>``` ou éxécuter ```pip install -r requirements.txt``` qui installera tous les packages requis. sur Windows éxécuter plutôt ```pip install -r requirements_windows.txt```
-- lmk-detection utilse numba qui demande une version de numpy antèrieur, Or pour l'utilisation faite il fonctionne avec une version supérieur. <br>
-Du coup aller dans le dossier numba (venv/Lib/site-packages/numba sur Windows si installer dans un virtualenv python), dans le fichier \_\_init\_\_.py et supprimer les 2 ligne indiquant la version minimal de numpy (L145-L146).
-- par défaut vous devez installer eigen dans flame-fitting/sbody/alignment/mesh-distance. <br>
-Pour plus d'information liser le readme de flame-fitting
-- pour installer eigen sous windows au lieu de éxécuter ```make``` éxécuter ```python setup.py build_ext --inplace```
+- the list of required dependencies can be found in the requirements.txt file (with some exceptions)
+- for psbody-mesh you will probably need to install [boost](https://www.boost.org/)
+- To install psbody-mesh under Windows take the version present on this [repository](https://github.com/johnbanq/mesh/tree/fix/MSVC_compilation)
+- most dependencies install with ```pip install <packagename>``` or run ```pip install -r requirements.txt``` which will install all required packages. on Windows run ```pip install -r requirements_windows.txt``` instead
+- lmk-detection uses numba which requires an earlier version of numpy, but for the use made it works with a higher version. <br>
+So go to the numba folder (venv/Lib/site-packages/numba on Windows if installing in a virtualenv python), in the file \_\_init\_\_.py and delete the 2 lines indicating the minimum version of numpy(L145-L146).
+- by default you have to install eigen in flame-fitting/sbody/alignment/mesh-distance. <br>
+For more information read the flame-fitting readme
+- to install eigen on windows instead of running ```make``` run ```python setup.py build_ext --inplace```
 
-en éspérant que ces information pour l'installation manuelle vous auront était utile.
-Vous pouvez aussi regarder directement dans le fichier INSTALL.py pour mieux voir les étapes.
+hoping that this information for the manual installation will have been useful to you.
+You can also look directly in the INSTALL.py file to better see the steps.
 
 ### Model
 
-Télécharger le model flame (celui de 2020 de préférence) [ici](https://flame.is.tue.mpg.de/)
-et dézipper l'archive obtenue puis placer son contenu (les 3 fichier model) dans flame-fitting/models.
-(Vous pouvez vous le faire en même tant que l'installation.)
+Download the flame model (preferably the 2020 one) [here](https://flame.is.tue.mpg.de/)
+and unzip the archive obtained then place its content (the 3 model files) in flame-fitting/models.
+(You can do it yourself as the installation.)
 
-### Addon
+### Add-on
 
-Vous pouvez utiliser les points directement pour les transformer en sphere et faire la difference boolean sur le masque d'entrée <br>
-afin d'obtenir directement le masque d'entrée au lieu d'un nuages de points. (format d'enregistrement OBJ et STL supporté) <br>
-pour cela il est nécessaire de installer [blender](https://www.blender.org/), car le programme l'utilise pour faire la difference boolean. <br>
-Ensuite si vous ne l'avez pas installer à l'endroit par défaut vous devez spécifier le chemin blender au lancement ou dans config.py. <br>
+You can use the dots directly to turn them into a sphere and do the boolean difference on the input mask <br>
+in order to directly obtain the input mask instead of a point cloud. (supported OBJ and STL save format) <br>
+for this it is necessary to install [blender](https://www.blender.org/), because the program uses it to make the difference boolean. <br>
+Then if you did not install it at the default location you must specify the blender path at launch or in config.py. <br>
 
-## Utilisation
+## Use
 
-### pré-requis
+### prerequisites
 
-Vous devez avoir :
-- un ou plusieur scan 3D de masque au format obj ou stl
-- un logiciel permettant de placer des point sur un objet 3D et de récupérer les coordonnées de ces dit points. (**conseiller**)
-- installer ce programme
+You must have :
+- one or more 3D scan of mask in obj or stl format
+- a software allowing to place points on a 3D object and to recover the coordinates of these said points. (**advise**)
+- install this program
 
-### préparation des données d'entrée
+### preparing input data
 
-Le programme a besoin pour fonctionner de données d'entrée. <br>
-Il lui faut un ou plusieur scan 3D au format OBJ ou STL. <br>
-Si vous avez un problème lors de la détection de landmakrs, <br>
-ajouter pour chaque scan ayant ce problème un fichier contenant les coordonnées des 51 landmark dans l'ordre au format txt ou pp. <br>
-Voici une aperçu de là où il faut placer ces 51 landmark et de l'ordre (la précision n'est pas très importante) : <br>
-![Image montrant les position des 51 landmark](flameFitting/data/landmarks_51_annotated.png) <br>
-(Image issue de [flame-fitting](https://github.com/Rubikplayer/flame-fitting)) <br>
-Une fois tous les fichier demander obtenue placer les dans le dossier input.
+The program needs input data to work. <br>
+He needs one or more 3D scans in OBJ or STL format. <br>
+If you have problem while detecting landmakrs, <br>
+add for each scan having this problem a file containing the coordinates of the 51 landmarks in order in txt or pp format. <br>
+Here is an overview of where to place these 51 landmarks and the order (precision is not very important): <br>
+![Image showing the positions of the 51 landmarks](flameFitting/data/landmarks_51_annotated.png) <br>
+(Image from [flame-fitting](https://github.com/Rubikplayer/flame-fitting)) <br>
+Once all the requested files have been obtained, place them in the input folder.
 
-### éxécution
+### execution
 
-Maintenant que les données d'entré sont prête vous pouvez éxécuter le programme, <br>
-pour cela ouvrez un terminal / invite de commande et éxécuter :
+Now that the input data is ready you can run the program, <br>
+to do this, open a terminal / command prompt and run:
 ```
 python main.py
 ```
 
 ### options
 
-Plusieur paramètre sont disponnible en voici la liste (vous pouvez modifier / voir les valeur par défaut dans config.py) :
-- ```--output_format``` : format du fichier de sortie.
-- ```--auto_lmk``` : définie si les 51 landmarks sont générés de manière automatique ou non.
-- ```--radius``` : rayon des spheres utilisée pour généré les trou des masque lors de l'enregistrement dans le format stl ou obj
-- ```--blender_path``` : chemin du dossier contenant [blender](https://www.blender.org/). (inutile de changer si installer à l'endroit par défaut proposer par l'installateur [blender](https://www.blender.org/))
+Several parameters are available here is the list (you can modify / see the default values ​​in config.py):
+- ```--output_format```: output file format.
+- ```--auto_lmk```: defines whether the 51 landmarks are generated automatically or not.
+- ```--radius```: sphere radius used to generate mask holes when saving in stl or obj format
+- ```--blender_path```: path of the folder containing [blender](https://www.blender.org/). (no need to change if installing in the default location offered by the installer [blender](https://www.blender.org/))
 
-Voici un exemple d'éxécution avec paramètre :
+Here is an example of execution with parameter:
 ```
 python main.py --output_format=stl --auto_lmk=True --blender_path="E:\\Program Files\\Blender Foundation\\Blender 3.2"
 ```
 
-### récupération des données de sortie
+### retrieving output data
 
-Une fois l'éxécution terminer, vous retrouverer les données de sortie dans le dossier output. <br>
-Pour chaque scan il vous ressort un fichier contenant les coordonnées des marqueurs ou le masque trouer resultant. (dépand du format de sortie choisie) <br>
-Le fichier à le même nom que le masque d'entrée mais avec l'extension correspondant au format de sortie.
+Once the execution is finished, you will find the output data in the output folder. <br>
+For each scan you get a file containing the coordinates of the markers or the resulting hole mask. (depends on the chosen output format) <br>
+The file has the same name as the input mask but with the extension corresponding to the output format.
 
-### formats
+### sizes
 
-Liste des différent format prise en charge :
-- **npy** : fichier numpy pouvant être lu avec python grâce à numpy.
-- **txt** : fichier texte pouvant être lu par Rhinoceros 3D ou dans un éditeur de texte ou un tableur (équivaut à un fichier .csv).
-- **pp** : fichier picked points pouvant être lu par MeshLab, il se base sur une structure HTML vous pouvez donc l'ouvrir avec un éditeur de texte.
-- **obj** : fichier wavefront (objet 3D),  contient le masque de départ trouer à partir des points des marker (**nécessite [blender](https://www.blender.org/)**)
-- **stl** : fichier stéréolithographie (objet 3D) contient le masque de départ trouer à partir des points des marker (**nécessite [blender](https://www.blender.org/)**)
+List of different supported formats:
+- **npy**: numpy file that can be read with python thanks to numpy.
+- **txt**: text file that can be read by Rhinoceros 3D or in a text editor or spreadsheet (equivalent to a .csv file).
+- **pp**: picked points file that can be read by MeshLab, it is based on an HTML structure so you can open it with a text editor.
+- **obj**: wavefront file (3D object), contains the hole starting mask from the marker points (**requires [blender](https://www.blender.org/)**)
+- **stl**: stereolithography file (3D object) contains the hole starting mask from the marker points (**requires [blender](https://www.blender.org/)**)
   
-## Ressources
+## Resources
 
-Liste des resources utilisée (non exaustive) :
+List of resources used (not exhaustive):
 - [Flame](https://flame.is.tue.mpg.de/)
 - [flame-fitting](https://github.com/Rubikplayer/flame-fitting)
 - [eigen](https://gitlab.com/libeigen/eigen)
@@ -128,7 +128,7 @@ Liste des resources utilisée (non exaustive) :
 
 ## Version Packages
 
-Version des packages utilisée lors du développement (Vous pouvez aussi retrouver ses informations dans packages.txt dans le dossier doc) :
+Version of packages used during development (You can also find its information in packages.txt in the doc folder):
 
 [![chumpy : 0.70](https://img.shields.io/badge/chumpy-0.70-red)](https://github.com/mattloper/chumpy)
 [![colorama : 0.4.5](https://img.shields.io/badge/colorama-0.4.5-brown)](https://github.com/tartley/colorama)

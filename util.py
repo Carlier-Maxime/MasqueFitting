@@ -47,21 +47,21 @@ def save_points(points: list, file_base_name: str, format: str = "npy", radius: 
                 f.write(f' <point y="{p[1]}" z="{p[2]}" active="1" name="{i}" x="{p[0]}"/>\n')
             f.write('</PickedPoints>\n')
     elif format in ["obj", "stl"]:
-        print("transformation des points en sphere")
+        print("Transform all points in sphere")
         spheres = []
         for i in range(len(points)):
             sphere = trimesh.creation.uv_sphere(radius)
             sphere.vertices += points[i]
             spheres.append(sphere)
 
-        print("différence boolean avec le masque d'origine")
+        print("boolean difference with original mask")
         blender = trimesh.interfaces.blender
         blender._search_path += ';' + blender_path
         blender._blender_executable = find_executable('blender', path=blender._search_path)
         blender.exists = blender._blender_executable is not None
         diff = mask.difference(spheres)
 
-        print("sauvegarde du résultat")
+        print("Save result")
         if format == "stl":
             with open(file_base_name + ".stl", "wb") as f:
                 f.write(trimesh.exchange.stl.export_stl(diff))
@@ -173,7 +173,7 @@ def change_markers(scan_path: str, pts_path: str, lmk_path: str = None, pyv: str
         pyv (str): python version
     Returns: None
     """
-    print("Vérification et chargement des points")
+    print("Verify load points")
     if pts_path.endswith(".txt"):
         points = []
         with open(pts_path, "r") as f:
@@ -188,9 +188,9 @@ def change_markers(scan_path: str, pts_path: str, lmk_path: str = None, pyv: str
     elif pts_path.endswith(".npy"):
         points = np.load(pts_path)
     else:
-        log.warning("Format non prise en charge ! (le fichier pts doit-être au format txt ou npy)")
+        log.warning("Format not supported ! (the file pts must be format txt or npy)")
         exit(1)
-    print("Préparation du fichier 3D")
+    print("Prepare 3D file")
     base_name = scan_path.split('.obj')[0].split(".stl")[0].split("/")
     base_name = base_name[len(base_name) - 1]
     mesh = trimesh.load_mesh(scan_path)
@@ -199,12 +199,12 @@ def change_markers(scan_path: str, pts_path: str, lmk_path: str = None, pyv: str
         f.write(trimesh.exchange.obj.export_obj(mesh, True, False, False))
 
     if lmk_path is None:
-        print("Génération automatiques des 51 landmarks..")
+        print("Auto generate the 51 landmarks..")
         os.system(f"python{pyv} get_landmarks.py tmp/{base_name}.obj {pyv}")
         lmk_path = f"tmp/{base_name}.pp"
-        print("génération des landmarks, terminée.")
+        print("Generation of landmarks, finish.")
 
-    print("Préparation de flameFitting")
+    print("Prepare flame-fitting")
     if os.path.exists(lmk_path):
         array = load_picked_points(lmk_path)
         np.save("flameFitting/data/scan_lmks.npy", array)
@@ -212,24 +212,24 @@ def change_markers(scan_path: str, pts_path: str, lmk_path: str = None, pyv: str
         log.warning("Le scan 3D '" + scan_path + " n'as pas de fichier landmark ! (le nom de ce fichier doit-être "
                     + base_name + ".txt ou " + base_name + ".pp)")
     shutil.copyfile(f"tmp/{base_name}.obj", "flameFitting/data/scan.obj")
-    print("lancement de flameFitting")
+    print("Start flameFitting")
     os.chdir("flameFitting")
     os.system(f'python{pyv} fit_scan.py')
     os.chdir("..")
-    print("flameFitting terminée.")
-    print("transformation des points en index")
+    print("flameFitting finish.")
+    print("transform points in index")
     mesh = trimesh.load_mesh(f"tmp/{base_name}.obj")
     vertices, triangles = mesh.vertices, mesh.faces
     indexs = get_index_for_match_points(vertices, triangles, points, verbose=True)
-    print("utilisation des index obtenue sur le masque redimenssionner")
+    print("Use index obtain on mask resize")
     mesh = trimesh.load_mesh('flameFitting/output/scan_scaled.obj')
     vertices, triangles = mesh.vertices, mesh.faces
     points = read_all_index_opti_tri(vertices, triangles, indexs)
-    print("transformation des points en index pour le visage FLAME")
+    print("transform points in index for the visage FLAME")
     mesh = trimesh.load_mesh("flameFitting/output/fit_scan_result.obj")
     vertices, triangles = mesh.vertices, mesh.faces
     indexs = get_index_for_match_points(vertices, triangles, points)
-    print("Enregistrement des indexs de marker obtenue")
+    print("Save indexs of marker obtained")
     np.save("markers.npy", indexs)
 
 

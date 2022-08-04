@@ -19,7 +19,7 @@ class MyApp(ShowBase):
             file_path (str): path file for 3D object
         """
         ShowBase.__init__(self)
-        print("préparation de la scéne")
+        print("Prepare the scene")
         self.file_path = file_path
         model = self.loader.load_model(file_path)
         model.reparentTo(render)
@@ -32,7 +32,7 @@ class MyApp(ShowBase):
         base.camera.setPosHpr(0, 0, 450, 0, -84, 0)
 
         # CollisionTraverser  and a Collision Handler is set up
-        print("Initialisation du laser pour revenir à la 3D")
+        print("Init laser for return 3D")
         self.picker = CollisionTraverser()
         self.picker.showCollisions(render)
         self.pq = CollisionHandlerQueue()
@@ -54,23 +54,23 @@ class MyApp(ShowBase):
         Args:
             task: task object
         """
-        print("screenshot de l'aperçu de la scene")
+        print("Screenshot scene view")
         if not os.path.isdir("tmp"):
             os.mkdir("tmp")
         base.screenshot("tmp/screen.png", False)
 
-        print("Détection des landmark 3d..")
+        print("Detect the 3D landmarks..")
         lmk = self.get_landmark_3d()
         if lmk is None:
             if self.dlight.color != (0.2, 0.2, 0.2, 1.0):
                 self.dlight.color = (0.2, 0.2, 0.2, 1.0)
-                log.info("landmarks introuvable, changement d'éclairage et nouvelle tentative")
+                log.info("landmarks not found, change light intensity and retry")
                 taskMgr.doMethodLater(0, self.MainTask, 'MainTask')
             else:
-                log.error("les landmarks n'arrivent pas à être trouver.")
+                log.error("the landmarks are be not found")
                 exit(1)
             return task.done
-        print("Sauvegarde des landmarks")
+        print("Save landmarks")
         util.save_points(lmk, self.file_path.split('.obj')[0], "pp")
         sys.tracebacklimit = 0
         raise KeyboardInterrupt("for stop panda3d not all prgm")
@@ -135,6 +135,7 @@ class MyApp(ShowBase):
         detect 2D landmark, transform 2D to 3D.
         Returns: 3D landmarks
         """
+        print("Detect 2D landmarks")
         os.chdir("lmkDetection")
         lmk_detection.run("../tmp/screen.png")
         os.chdir("..")
@@ -142,7 +143,7 @@ class MyApp(ShowBase):
         if len(preds) == 0:
             return None
         pts = []
-        print("Transformation des landmarks 2D en landmarks 3D")
+        print("Transform 2D landmarks to 3D landmarks")
         for pred in preds:
             p = self.pixel_to_3d_point(pred[0], pred[1])
             if p is not None:
@@ -163,7 +164,7 @@ class MyApp(ShowBase):
                 if p is not None:
                     pts.append(p)
                 else:
-                    log.error(f'Pas de point 3D pour le pixel {x}, {y} !')
+                    log.error(f'No 3D point fot the pixel {x}, {y} !')
         return pts[17:]
 
     def finalizeExit(self):
@@ -171,7 +172,7 @@ class MyApp(ShowBase):
 
 
 def run(file_path):
-    print("Configuration de panda3d")
+    print("Configuration of panda3d")
     loadPrcFile("etc/Config.prc")
     app = MyApp(file_path)
     app.run()
@@ -181,6 +182,6 @@ def run(file_path):
 if __name__ == '__main__':
     args = sys.argv[1:]
     if len(args) < 1:
-        print("missing arguments")
+        print("Missing arguments")
         exit(1)
     run(str(args[0]))

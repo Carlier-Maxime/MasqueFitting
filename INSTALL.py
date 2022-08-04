@@ -72,5 +72,5 @@ else:
     os.system('make')
     os.chdir('../../../..')
 
-if bool(int(input("Veux tu supprimer le fichier d'installation ? (0|1) : "))):
+if bool(int(input("Do you want to delete the installation file ? (0|1) : "))):
     os.remove('INSTALL.py')
