@@ -4,7 +4,7 @@
 
 Masque Fitting vous permet à partir d'un scan 3D d'obtenir les coordonnées des N marqueur correspondant aux points choisie sur le visage flame. (voir [Utilisation](#utilisation)) <br>
 Par défaut ils vous retournent ces 105 points : <br>
-![Représentation des 105 points](105points.gif) <br>
+![Représentation des 105 points](doc/105points.gif) <br>
 (Cette image est un gif d'illustration issue de [VisageGenerator](https://github.com/Carlier-Maxime/Visage-Generator)) <br>
 Bien entendu les coordonnées de ces 105 points sont adapté afin de collé aux masque fournie.
 
