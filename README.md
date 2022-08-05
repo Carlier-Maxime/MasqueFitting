@@ -1,4 +1,4 @@
-# Fitting Mask
+# Mask Fitting
 
 ## Description
 
