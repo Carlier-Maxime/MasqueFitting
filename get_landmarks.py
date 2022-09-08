@@ -4,16 +4,18 @@ import sys
 
 import cv2
 import numpy as np
+from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import DirectionalLight, CollisionTraverser, \
-    CollisionHandlerQueue, CollisionNode, CollisionRay, GeomNode, loadPrcFile
+    CollisionHandlerQueue, CollisionNode, CollisionRay, GeomNode, loadPrcFile, LVecBase2f
 from lmkDetection import lmk_detection
 
 import util
 
 
 class MyApp(ShowBase):
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str, camX, camY, camZ, camH, camP, camR, fovI, fovJ,
+                 lightX, lightY, lightZ, lightH, lightP, lightR):
         """
         Args:
             file_path (str): path file for 3D object
@@ -25,11 +27,12 @@ class MyApp(ShowBase):
         model.reparentTo(render)
         self.dlight = DirectionalLight('my dlight')
         dlnp = render.attachNewNode(self.dlight)
-        dlnp.setPosHpr(0, 0, 500, 0, -84, 0)
+        dlnp.setPosHpr(lightX, lightY, lightZ, lightH, lightP, lightR)
         model.setLight(dlnp)
         base.disableMouse()
         base.setBackgroundColor(1, 1, 1)
-        base.camera.setPosHpr(0, 0, 450, 0, -84, 0)
+        base.camera.setPosHpr(camX, camY, camZ, camH, camP, camR)
+        base.camLens.setFov(LVecBase2f(fovI, fovJ))
 
         # CollisionTraverser  and a Collision Handler is set up
         print("Init laser for return 3D")
@@ -45,6 +48,75 @@ class MyApp(ShowBase):
         self.picker.addCollider(self.pickerNP, self.pq)
 
         taskMgr.doMethodLater(0, self.MainTask, 'MainTask')
+        #self.enable_mouve_camera()
+
+    def enable_mouve_camera(self) -> None:
+        """
+        enable the movement of the camera by the keyboard and the possibility of see the position of the camera.
+        Returns: None
+        """
+        self.accept('q', self.move, [0, 0.01, 0, 0, 0, 0, 0])
+        self.accept('d', self.move, [0, -0.01, 0, 0, 0, 0, 0])
+        self.accept('s', self.move, [0.01, 0, 0, 0, 0, 0, 0])
+        self.accept('z', self.move, [-0.01, 0, 0, 0, 0, 0, 0])
+        self.accept('a', self.move, [0, 0, 0.01, 0, 0, 0, 0])
+        self.accept('e', self.move, [0, 0, -0.01, 0, 0, 0, 0])
+        self.accept('y', self.move, [0, 0, 0, 1, 0, 0, 0])
+        self.accept('h', self.move, [0, 0, 0, -1, 0, 0, 0])
+        self.accept('p', self.move, [0, 0, 0, 0, 1, 0, 0])
+        self.accept('m', self.move, [0, 0, 0, 0, -1, 0, 0])
+        self.accept('r', self.move, [0, 0, 0, 0, 0, 1, 0])
+        self.accept('f', self.move, [0, 0, 0, 0, 0, -1, 0])
+        self.accept('i', self.move, [0, 0, 0, 0, 0, 0, -1])
+        self.accept('o', self.move, [0, 0, 0, 0, 0, 0, 1])
+        self.accept('c', self.ShowCamPos)
+        self.accept('c-up', self.HideCamPos)
+
+    def move(self, x: float, y: float, z: float, h: float, p: float, r: float, fov: int) -> None:
+        """
+        change the position, rotation and field of view of the camera by adding the values provided
+        Args:
+            x (float): value to add a position in the X axis
+            y (float): value to add a position in the Y axis
+            z (float): value to add a position in the Z axis
+            h (float): value to add a rotation in the heading
+            p (float): value to add a rotation in the pitch
+            r (float): value to add a rotation in the row
+            fov (int): value to add a field of view
+
+        Returns: None
+        """
+        base.camera.setX(base.camera.getX() + x)
+        base.camera.setY(base.camera.getY() + y)
+        base.camera.setZ(base.camera.getZ() + z)
+        base.camera.setH(base.camera.getH() + h)
+        base.camera.setP(base.camera.getP() + p)
+        base.camera.setR(base.camera.getR() + r)
+        base.camLens.setFov(base.camLens.getFov() + fov)
+
+    def ShowCamPos(self) -> None:
+        """
+        Display Information of the position of the camera (position, rotation, field of view)
+        Returns: None
+        """
+        x = base.camera.getX()
+        y = base.camera.getY()
+        z = base.camera.getZ()
+        h = base.camera.getH()
+        p = base.camera.getP()
+        r = base.camera.getR()
+        fov = base.camLens.getFov()
+        self.title = OnscreenText(
+            text=str(x) + " : " + str(y) + " : " + str(z) + "\n" + str(h) + " : " + str(p) + " : " + str(
+                r) + " : " + str(fov),
+            style=1, fg=(1, 1, 0, 1), pos=(0, 0), scale=0.07)
+
+    def HideCamPos(self) -> None:
+        """
+        turn off camera information
+        Returns: None
+        """
+        self.title.destroy()
 
     def MainTask(self, task):
         """
@@ -171,10 +243,11 @@ class MyApp(ShowBase):
         return
 
 
-def run(file_path):
+def run(file_path, camX=0, camY=0, camZ=450, camH=0, camP=-84, camR=0, fovI=39.3201, fovJ=30, lightX=0,
+        lightY=0, lightZ=500, lightH=0, lightP=-84, lightR=0):
     print("Configuration of panda3d")
     loadPrcFile("etc/Config.prc")
-    app = MyApp(file_path)
+    app = MyApp(file_path, camX, camY, camZ, camH, camP, camR, fovI, fovJ, lightX, lightY, lightZ, lightH, lightP, lightR)
     app.run()
     sys.tracebacklimit = 1000
 

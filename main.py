@@ -51,7 +51,14 @@ def run():
         if config.auto_lmk:
             print("Auto generate the 51 landmarks..")
             os.chdir("..")
-            get_landmarks.run(f"tmp/{base_name}.obj")
+            if config.input_flame_visage:
+                get_landmarks.run(f"tmp/{base_name}.obj", 0.77, -0.18, 0.86, 90, -45, 0, 26.3201, 17, 0, 0, 10, 90, -45, 0)
+            else:
+                get_landmarks.run(f"tmp/{base_name}.obj", config.panda3d_camera_x, config.panda3d_camera_y,
+                                  config.panda3d_camera_z, config.panda3d_camera_h, config.panda3d_camera_p,
+                                  config.panda3d_camera_r, config.panda3d_fov_i, config.panda3d_fov_j,
+                                  config.panda3d_light_x, config.panda3d_light_y, config.panda3d_light_z,
+                                  config.panda3d_light_h, config.panda3d_light_p, config.panda3d_light_r)
             os.chdir('tmp')
             print("Generation landmarks, finish.")
         print("Prepare flameFitting")

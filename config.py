@@ -30,6 +30,111 @@ parser.add_argument(
     help="chemin d'accès vers le dossier de blender (utile si n'est pas installer au endroit par default)"
 )
 
+parser.add_argument(
+    '--panda3d_camera_x',
+    type=float,
+    default=0,
+    help="argument for camera panda3d"
+)
+
+parser.add_argument(
+    '--panda3d_camera_y',
+    type=float,
+    default=0,
+    help="argument for camera panda3d"
+)
+
+parser.add_argument(
+    '--panda3d_camera_z',
+    type=float,
+    default=-450,
+    help="argument for camera panda3d"
+)
+
+parser.add_argument(
+    '--panda3d_camera_h',
+    type=float,
+    default=0,
+    help="argument for camera panda3d"
+)
+
+parser.add_argument(
+    '--panda3d_camera_p',
+    type=float,
+    default=-84,
+    help="argument for camera panda3d"
+)
+
+parser.add_argument(
+    '--panda3d_camera_r',
+    type=float,
+    default=0,
+    help="argument for camera panda3d"
+)
+
+parser.add_argument(
+    '--panda3d_fov_i',
+    type=float,
+    default=39.3201,
+    help="argument for fov panda3d"
+)
+
+parser.add_argument(
+    '--panda3d_fov_j',
+    type=float,
+    default=30,
+    help="argument for fov panda3d"
+)
+
+parser.add_argument(
+    '--panda3d_light_x',
+    type=float,
+    default=0,
+    help="argument for light panda3d"
+)
+
+parser.add_argument(
+    '--panda3d_light_y',
+    type=float,
+    default=0,
+    help="argument for light panda3d"
+)
+
+parser.add_argument(
+    '--panda3d_light_z',
+    type=float,
+    default=500,
+    help="argument for light panda3d"
+)
+
+parser.add_argument(
+    '--panda3d_light_h',
+    type=float,
+    default=0,
+    help="argument for light panda3d"
+)
+
+parser.add_argument(
+    '--panda3d_light_p',
+    type=float,
+    default=-84,
+    help="argument for light panda3d"
+)
+
+parser.add_argument(
+    '--panda3d_light_r',
+    type=float,
+    default=0,
+    help="argument for light panda3d"
+)
+
+parser.add_argument(
+    '--input_flame_visage',
+    type=bool,
+    default=False,
+    help="use flame visage in input"
+)
+
 
 def get_config():
     config = parser.parse_args()
