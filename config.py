@@ -47,7 +47,7 @@ parser.add_argument(
 parser.add_argument(
     '--panda3d_camera_z',
     type=float,
-    default=-450,
+    default=450,
     help="argument for camera panda3d"
 )
 
