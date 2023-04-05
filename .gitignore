@@ -5,6 +5,7 @@ output/
 __pycache__/
 tmp/
 lmkDetection/lmk.npy
+lmkDetection/numpy*
 /blender
 /boost
 /psbody-mesh
